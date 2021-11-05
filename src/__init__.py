@@ -45,6 +45,7 @@ def addDeck():
 
     finally:
         ankiBridge.stopEditing()
+        mw.reset()
 
 def syncDecks():
 
@@ -63,6 +64,7 @@ def syncDecks():
     finally:
         showInfo("Sync completed")
         ankiBridge.stopEditing()
+        mw.reset()
 
 def removeRemote():
 
@@ -81,6 +83,7 @@ def removeRemote():
 
     finally:
         ankiBridge.stopEditing()
+        mw.reset()
 
 if (QAction != None and mw != None):
     remoteDecksSubMenu = QMenu("Manage remote deck", mw)
