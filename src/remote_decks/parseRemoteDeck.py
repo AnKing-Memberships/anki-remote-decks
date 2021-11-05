@@ -1,9 +1,11 @@
-import requests
-import codecs
-from bs4 import BeautifulSoup
 import re
-from .libs.org_to_anki.org_parser.parseData import buildNamedDeck
+
+import requests
+from bs4 import BeautifulSoup
+
 from .libs.org_to_anki import config
+from .libs.org_to_anki.org_parser.parseData import buildNamedDeck
+
 
 # Should get the remote deck and return an Anki Deck
 def getRemoteDeck(url):
@@ -22,8 +24,9 @@ def getRemoteDeck(url):
         pass
     else:
         raise Exception("url is not a Google doc or csv file")
-        
+
     return deck
+
 
 def _determinePageType(url):
 
@@ -64,22 +67,27 @@ def _getCssStyles(cssData):
     startSectionRegex = "[;{]"
     for section in cssSections:
         name = re.findall("c[\d]+", section)[0]
-        color = re.findall("{}{}{}".format(startSectionRegex, "color", regexValuePattern), section)
-        fontStyle = re.findall("{}{}{}".format(startSectionRegex, "font-style", regexValuePattern), section)
-        fontWeight = re.findall("{}{}{}".format(startSectionRegex, "font-weight", regexValuePattern), section)
-        textDecoration = re.findall("{}{}{}".format(startSectionRegex, "text-decoration", regexValuePattern), section)
-        verticalAlign = re.findall("{}{}{}".format(startSectionRegex, "vertical-align", regexValuePattern), section)
+        color = re.findall("{}{}{}".format(
+            startSectionRegex, "color", regexValuePattern), section)
+        fontStyle = re.findall("{}{}{}".format(
+            startSectionRegex, "font-style", regexValuePattern), section)
+        fontWeight = re.findall("{}{}{}".format(
+            startSectionRegex, "font-weight", regexValuePattern), section)
+        textDecoration = re.findall("{}{}{}".format(
+            startSectionRegex, "text-decoration", regexValuePattern), section)
+        verticalAlign = re.findall("{}{}{}".format(
+            startSectionRegex, "vertical-align", regexValuePattern), section)
 
         # Ignore default values
-        if (len(color) >0 and "color:#000000" in color[0]):
+        if (len(color) > 0 and "color:#000000" in color[0]):
             color = []
-        if (len(fontWeight) >0 and "font-weight:400" in fontWeight[0]):
+        if (len(fontWeight) > 0 and "font-weight:400" in fontWeight[0]):
             fontWeight = []
-        if (len(fontStyle) >0 and "font-style:normal" in fontStyle[0]):
+        if (len(fontStyle) > 0 and "font-style:normal" in fontStyle[0]):
             fontStyle = []
-        if (len(textDecoration) >0 and "text-decoration:none" in textDecoration[0]):
+        if (len(textDecoration) > 0 and "text-decoration:none" in textDecoration[0]):
             textDecoration = []
-        if (len(verticalAlign) >0 and "vertical-align:baseline" in verticalAlign[0]):
+        if (len(verticalAlign) > 0 and "vertical-align:baseline" in verticalAlign[0]):
             verticalAlign = []
 
         d = [color, fontStyle, fontWeight, textDecoration, verticalAlign]
@@ -98,11 +106,11 @@ def _generateOrgListFromHtmlPage(data):
 
     orgStar = "*"
     soup = BeautifulSoup(data, 'html.parser')
-    title = soup.find("div", {"id":"title"})
+    title = soup.find("div", {"id": "title"})
     deckName = title.text
     contents = soup.find_all(["ul", "p"])
 
-    ## Try and get CSS
+    # Try and get CSS
 
     cssData = soup.find_all("style")
     cssStyles = {}
@@ -151,13 +159,13 @@ def _generateOrgListFromHtmlPage(data):
             listItems = item.find_all("li")
 
             # Item class is in the format of "lst-kix_f64mhuyvzb86-1" with last numbers as the level
-            classes = item["class"] #.split("-")[-1])
+            classes = item["class"]  # .split("-")[-1])
             regexSearch = "^[\w]{3}-[\w]{3,}-[\d]{1,}"
             indentation = -1
             for i in classes:
                 if re.match(regexSearch, i) != None:
                     indentation = int(i.split("-")[-1])
-            
+
             if (indentation == -1):
                 raise Exception("Could not find the correct indentation")
 
@@ -177,9 +185,12 @@ def _generateOrgListFromHtmlPage(data):
                         # Get image styles
                         styles = images[0]["style"]
                         searchRegex = "{}:\s[^;]*;"
-                        height = re.findall(searchRegex.format("height"), styles)[0].split(":")[1].replace(";", "").strip()
-                        width = re.findall(searchRegex.format("width"), styles)[0].split(":")[1].replace(";", "").strip()
-                        imageConfig = " # height={}, width={}".format(height, width)
+                        height = re.findall(searchRegex.format("height"), styles)[
+                            0].split(":")[1].replace(";", "").strip()
+                        width = re.findall(searchRegex.format("width"), styles)[
+                            0].split(":")[1].replace(";", "").strip()
+                        imageConfig = " # height={}, width={}".format(
+                            height, width)
 
                         # Build image line
                         imageText = imageTemplate.format(images[0]["src"])
@@ -192,7 +203,6 @@ def _generateOrgListFromHtmlPage(data):
 
                 itemText.append(lineOfText)
 
-
             indentation += 1
             orgStars = (orgStar * indentation)
             for line in itemText:
@@ -202,23 +212,24 @@ def _generateOrgListFromHtmlPage(data):
                     formattedListItem = "{} {}".format(orgStars, line)
                     orgFormattedFile.append(formattedListItem)
 
-
-
         else:
             pass
             # print("Unknown line type: {}".format(item.name))
 
-    return {"deckName":deckName, "data":orgFormattedFile}
+    return {"deckName": deckName, "data": orgFormattedFile}
 
 ### Special cases ###
+
+
 def _closeLineBreak(line):
     # Case to support Cloze cards
     if ("#type=cloze" == line.replace(" ", "").lower()):
-        return True 
-    return False 
-    
+        return True
+    return False
+
+
 def _startOfMultiLineComment(item):
-    
+
     # Get span text
     if item.name == "p":
         line = ""
@@ -226,11 +237,12 @@ def _startOfMultiLineComment(item):
         for span in sections:
             line += span.text
         if ("#multilinecommentstart" == line.replace(" ", "").lower()):
-            return True 
+            return True
     return False
 
+
 def _endOfMultiLineComment(item):
-    
+
     # Get span text
     if item.name == "p":
         line = ""
@@ -238,8 +250,9 @@ def _endOfMultiLineComment(item):
         for span in sections:
             line += span.text
         if ("#multilinecommentend" == line.replace(" ", "").lower()):
-            return True 
+            return True
     return False
+
 
 def _extractSpanWithStyles(soupSpan, cssStyles):
 
@@ -255,17 +268,18 @@ def _extractSpanWithStyles(soupSpan, cssStyles):
             for style in cssStyles.get(clazz):
                 relevantStyles.append(style)
 
-
     if len(relevantStyles) > 0:
         styleAttributes = ""
         for i in relevantStyles:
             styleAttributes += i + ";"
         # Added whitespace around the text. The whitespace is getting stripped somewhere
         text = text.strip()
-        styledText = '<span style="{}"> {} </span>'.format(styleAttributes, text)
+        styledText = '<span style="{}"> {} </span>'.format(
+            styleAttributes, text)
         return styledText
     else:
         return text
+
 
 def _download(url):
 
@@ -276,8 +290,9 @@ def _download(url):
         raise Exception("Failed to get url: {}".format(response.status_code))
 
     data = data.decode("utf-8")
-    data = data.replace("\xa0"," ")
+    data = data.replace("\xa0", " ")
     return data
+
 
 if __name__ == "__main__":
     pass
