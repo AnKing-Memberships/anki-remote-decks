@@ -5,13 +5,11 @@ try:
     from aqt import mw
     # import the "show info" tool from utils.py
     from aqt.utils import showInfo
-    from aqt.utils import shortcut
     # import all of the Qt GUI library
     from aqt.qt import *
-    from aqt.importing import ImportDialog
     from .remote_decks.main import addNewDeck
-    from .remote_decks.main import syncDecks as sDecks
-    from .remote_decks.main import removeRemoteDeck as rDecks
+    from .remote_decks.main import syncDecks as _syncDecks
+    from .remote_decks.main import removeRemoteDeck as removeDecks
     from .remote_decks.libs.org_to_anki.utils import getAnkiPluginConnector as getConnector
 except:
     QAction = None
@@ -52,7 +50,7 @@ def syncDecks():
     try:
         ankiBridge = getConnector()
         ankiBridge.startEditing()
-        sDecks()
+        _syncDecks()
     # General exception
     except Exception as e:
         errorMessage = str(e)
@@ -72,7 +70,7 @@ def removeRemote():
         ankiBridge = getConnector()
         ankiBridge.startEditing()
 
-        rDecks()
+        removeDecks()
     # General exception
     except Exception as e:
         errorMessage = str(e)
