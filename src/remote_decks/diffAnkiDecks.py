@@ -3,7 +3,11 @@ try:
     from aqt.utils import showInfo
 except:
     pass
-from .libs.org_to_anki.ankiConnectWrapper.AnkiNoteBuilder import AnkiNoteBuilder
+from aqt import mw
+
+from .libs.org_to_anki.ankiConnectWrapper.AnkiNoteBuilder import \
+    AnkiNoteBuilder
+
 
 def diffAnkiDecks(orgAnkiDeck, ankiBaseDeck):
 
@@ -71,11 +75,4 @@ def diffAnkiDecks(orgAnkiDeck, ankiBaseDeck):
 
 
 def _determineKeyField(jsonDeck):
-
-    # TODO should use the Anki database to determine key field
-    if jsonDeck.get("modelName") == "Basic":
-        return "Front"
-    elif jsonDeck.get("modelName") == "Cloze":
-        return "Text"
-    else:
-        return "Front"
+    return mw.col.models.by_name(jsonDeck.get("modelName"))["flds"][0]["name"]
