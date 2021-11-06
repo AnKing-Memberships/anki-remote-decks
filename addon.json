@@ -1,0 +1,11 @@
+{
+    "display_name": "Remote Decks",
+    "module_name": "remote_decks",
+    "repo_name": "anki-remote-decks",
+    "ankiweb_id": "",
+    "author": "RisingOrange",
+    "conflicts": [],
+    "targets": [
+        "anki21"
+    ]
+}
