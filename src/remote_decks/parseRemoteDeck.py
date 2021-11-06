@@ -109,13 +109,9 @@ def _generateOrgListFromHtmlPage(cell_content):
     deckName = title.text
     contents = soup.find_all(["table", "p"])
 
-    # Try and get CSS XXX
-    # XXX code is weird
-    cssData = soup.find_all("style")
     cssStyles = {}
-    for css in cssData:
-        styleSection = _getCssStyles(css)
-        cssStyles.update(styleSection)
+    for styles_item in soup.find_all("style"):
+        cssStyles.update(_getCssStyles(styles_item))
 
     multiCommentSection = False
     orgFormattedFile = []
