@@ -48,7 +48,7 @@ def _parseAndUpload(filePath, embedded=False):
         connector = AnkiConnector()
     else:
         connector = AnkiPluginConnector.AnkiPluginConnector()
-    connector.addCardsToEmptyDeck(deck)
+    connector.create_new_deck(deck)
 
 
 if __name__ == "__main__":

@@ -9,13 +9,14 @@ from .libs.org_to_anki.build_note import build_note
 from .libs.org_to_anki.utils import getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
 
-REMOTE_DECK_NAME = "Remote Decks"
+# name of the deck that is the root of all remote decks
+ROOT_DECK_NAME = "Remote Decks"
 
 
-def syncDecks():
+def sync_decks():
 
     # Get all remote decks from config
-    ankiBridge = getAnkiPluginConnector(REMOTE_DECK_NAME)
+    ankiBridge = getAnkiPluginConnector(ROOT_DECK_NAME)
 
     # Get config data
     remote_data = ankiBridge.getConfig()
@@ -40,17 +41,17 @@ def syncDecks():
             remote_deck.deckName = deck_name
 
             # Get current deck
-            deck_name = f"{REMOTE_DECK_NAME}::{deck_name}"
+            deck_name = f"{ROOT_DECK_NAME}::{deck_name}"
             local_deck = ankiBridge.getDeckNotes(deck_name)
 
-            # Local deck has no cards
-            if local_deck == []:
-                ankiBridge.addCardsToEmptyDeck(remote_deck)
-                showInfo("Adding cards to empty deck: {}".format(deck_name))
-            else:
-                # Diff decks and sync
+            # Update existing deck or create new one
+            if local_deck:
                 deckDiff = diffAnkiDecks(remote_deck, local_deck)
-                _sync_new_data(deckDiff)
+                _sync_deck(deckDiff)
+            else:
+                ankiBridge.create_new_deck(remote_deck)
+                showInfo("Adding cards to empty deck: {}".format(deck_name))
+                
         except Exception as e:
             deckMessage = "\nThe following deck failed to sync: {}".format(
                 deck_name)
@@ -61,14 +62,13 @@ def syncDecks():
     formattedMedia = ankiBridge.prepareMedia(all_deck_media)
 
     # Add Media
-    # TODO This need to be refactored back into org_to_anki
-    for i in formattedMedia:
-        ankiBridge.AnkiBridge.storeMediaFile(i.get("fileName"), i.get("data"))
+    for media_info in formattedMedia:
+        ankiBridge.AnkiBridge.storeMediaFile(media_info.get("fileName"), media_info.get("data"))
 
 
-def _sync_new_data(deck_diff):
+def _sync_deck(deck_diff):
 
-    ankiBridge = getAnkiPluginConnector(REMOTE_DECK_NAME)
+    ankiBridge = getAnkiPluginConnector(ROOT_DECK_NAME)
 
     new_notes = deck_diff["new_notes"]
     updated_notes = deck_diff["updated_notes"]
@@ -111,7 +111,7 @@ def _update_note(noteId, built_note):
     ankiNote.flush()
 
 
-def addNewDeck():
+def add_new_deck():
 
     # Get url from user
     # url = "https://docs.google.com/document/d/e/2PACX-1vRXWGu8WvCojrLqMKsf8dTOWstrO1yLy4-8x5nkauRnMyc4iXrwkwY3BThXHc3SlCYqv8ULxup3QiOX/pub"
@@ -136,13 +136,13 @@ def addNewDeck():
     config["remote-decks"][url] = {"url": url, "deckName": deckName}
 
     # Upload new deck
-    ankiBridge.addCardsToEmptyDeck(deck)
+    ankiBridge.create_new_deck(deck)
 
     # Update config on success
     ankiBridge.writeConfig(config)
 
 
-def removeRemoteDeck():
+def remove_remote_deck():
 
     # Get current remote decks
     ankiBridge = getAnkiPluginConnector()

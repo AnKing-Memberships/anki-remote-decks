@@ -1,9 +1,9 @@
 from aqt import mw
 from aqt.utils import showInfo
 from aqt.qt import *
-from .remote_decks.main import addNewDeck
-from .remote_decks.main import syncDecks as _syncDecks
-from .remote_decks.main import removeRemoteDeck as removeDecks
+from .remote_decks.main import add_new_deck
+from .remote_decks.main import sync_decks
+from .remote_decks.main import remove_remote_deck 
 from .remote_decks.libs.org_to_anki.utils import getAnkiPluginConnector as getConnector
     
 errorTemplate = """
@@ -21,8 +21,8 @@ def addDeck():
     try:
         ankiBridge = getConnector()
         ankiBridge.startEditing()
+        add_new_deck()
 
-        addNewDeck()
     # General exception
     except RuntimeError as e:
         errorMessage = str(e)
@@ -40,7 +40,8 @@ def syncDecks():
     try:
         ankiBridge = getConnector()
         ankiBridge.startEditing()
-        _syncDecks()
+        sync_decks()
+
     # General exception
     except RuntimeError as e:
         errorMessage = str(e)
@@ -59,8 +60,8 @@ def removeRemote():
     try:
         ankiBridge = getConnector()
         ankiBridge.startEditing()
+        remove_remote_deck()
 
-        removeDecks()
     # General exception
     except RuntimeError as e:
         errorMessage = str(e)

@@ -20,7 +20,7 @@ class AnkiPluginConnector:
         self.root_deck = defaultDeck
         self.AnkiNoteBuilder = AnkiNoteBuilder(self.root_deck)
 
-    def addCardsToEmptyDeck(self, deck):
+    def create_new_deck(self, deck):
 
         self._buildNewDecksAsRequired(deck.getDeckNames())
 
