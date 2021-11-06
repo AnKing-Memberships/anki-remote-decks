@@ -1,14 +1,8 @@
-
-try:
-    from aqt import mw
-    from aqt.qt import *
-    from aqt.utils import showInfo
-except:
-    QAction = None
-    mw = None
-    pass
-
 import sys
+
+from aqt import mw
+from aqt.qt import *
+from aqt.utils import showInfo
 
 from .diffAnkiDecks import diffAnkiDecks
 from .libs.org_to_anki.build_note import built_note

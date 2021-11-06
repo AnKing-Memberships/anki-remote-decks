@@ -1,6 +1,7 @@
 import base64
 
 from .. import config
+from ..build_note import built_note
 from .AnkiBridge import AnkiBridge
 from .AnkiNoteBuilder import AnkiNoteBuilder
 
@@ -20,36 +21,19 @@ class AnkiPluginConnector:
         self.oldDefaulDeck = defaultDeck
         self.AnkiNoteBuilder = AnkiNoteBuilder(self.defaultDeck)
 
-    def addCardsToEmptyDeck(self, deck):  # AnkiDeck
+    def addCardsToEmptyDeck(self, deck):
 
-        # Check if should use base deck
-        if deck.getParameter("baseDeck", "true").lower() == "false":
-            self.defaultDeck = None
-        else:
-            self.defaultDeck = self.oldDefaulDeck
-
-        # Check for base models
-        self.checkForDefaultModelsInEnglish()
-
-        ### Upload deck to Anki in embedded mode ###
-        self._checkForDefaultDeck()
         self._buildNewDecksAsRequired(deck.getDeckNames())
+
         # Build new questions
         notes = self.buildIndividualAnkiNotes(deck.getQuestions())
         media = self.prepareMedia(deck.getMedia())
 
-        # Add notes => TODO => needs to handle exception better
-        numberOfDuplicateNotes = 0
+        # Add notes
         for note in notes:
-            try:
-                self.AnkiBridge.addNote(note)
-            except Exception as e:
-                if str(e) == "cannot create note because it is a duplicate":
-                    numberOfDuplicateNotes += 1
-                else:
-                    raise e
+            self.AnkiBridge.addNote(note)
 
-        # Add Media => TODO => not tested
+        # Add media
         for i in media:
             self.AnkiBridge.storeMediaFile(i.get("fileName"), i.get("data"))
 
@@ -67,16 +51,15 @@ class AnkiPluginConnector:
                         {"fileName": i.fileName, "data": base64.b64encode(i.data).decode("utf-8")})
         return formattedMedia
 
-    def _buildNewDecksAsRequired(self, deckNames):  # ([str])
-        # Check decks exist for notes
-        newDeckPaths = []
-        for i in deckNames:
-            fullDeckPath = self._getFullDeckPath(i)
-            if fullDeckPath not in self.currentDecks and fullDeckPath not in newDeckPaths:
-                newDeckPaths.append(fullDeckPath)
+    def _buildNewDecksAsRequired(self, deck_names):
+        new_deck_paths = []
+        for deck_name in deck_names:
+            full_deck_path = self._getFullDeckPath(deck_name)
+            if full_deck_path not in self.AnkiBridge.deckNames() and full_deck_path not in new_deck_paths:
+                new_deck_paths.append(full_deck_path)
 
         # Create decks
-        for deck in newDeckPaths:
+        for deck in new_deck_paths:
             self.AnkiBridge.createDeck(deck)
 
     def _getFullDeckPath(self, deckName):  # (str)
@@ -85,12 +68,6 @@ class AnkiPluginConnector:
         else:
             return str(self.defaultDeck + "::" + deckName)
 
-    def _checkForDefaultDeck(self):
-        self.currentDecks = self.AnkiBridge.deckNames()
-        if self.defaultDeck != None and self.defaultDeck not in self.currentDecks:
-            self.AnkiBridge.createDeck(self.defaultDeck)
-
-    # TODO => refactor
     def buildAnkiNotes(self, ankiQuestions):  # [AnkiQuestion]
 
         notes = []
@@ -101,11 +78,10 @@ class AnkiPluginConnector:
         finalNotes["notes"] = notes
         return finalNotes
 
-    def buildIndividualAnkiNotes(self, ankiQuestions):
-
+    def buildIndividualAnkiNotes(self, anki_notes):
         allNotes = []
-        for i in ankiQuestions:
-            allNotes.append(self.AnkiNoteBuilder.built_note(i))
+        for note in anki_notes:
+            allNotes.append(built_note(note))
 
         return allNotes
 

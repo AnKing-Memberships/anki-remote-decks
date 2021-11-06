@@ -5,7 +5,7 @@ import re
 import hashlib
 
 
-class DeckBuilderUtils:
+class NoteFactoryUtils:
 
     def __init__(self):
 

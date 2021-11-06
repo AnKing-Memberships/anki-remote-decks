@@ -1,10 +1,10 @@
 from .AnkiNote import AnkiNote
-from ..org_parser import DeckBuilderUtils
+from ..org_parser import NoteFactoryUtils
 from ..org_parser import ParserUtils
 
 class AnkiNoteFactory:
 
-    utils = DeckBuilderUtils.DeckBuilderUtils()
+    utils = NoteFactoryUtils.NoteFactoryUtils()
 
     def __init__(self, currentDeck, indentor = "*"):
         self.currentDeck = currentDeck
