@@ -16,11 +16,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Dict
+
+from ..ankiClasses.ParsedNote import ParsedNote
+
 try:
-    import unicodedata
-    import os
-    import hashlib
     import base64
+    import hashlib
+    import os
+    import unicodedata
+
     import anki
     import aqt
     from aqt.utils import showInfo
@@ -41,9 +46,9 @@ class AnkiBridge:
         self.x = "test"
 
     ### Core methods ###
-    def addNote(self, note):
-        ankiNote = self.createNote(note)
-        if ankiNote == None:
+    def addNote(self, note: Dict):
+        parsed_note = self.create_parsed_note(note)
+        if parsed_note == None:
             return
 
         audio = note.get('audio')
@@ -60,8 +65,8 @@ class AnkiBridge:
 
                 if not skip:
                     for field in audio['fields']:
-                        if field in ankiNote:
-                            ankiNote[field] += u'[sound:{}]'.format(
+                        if field in parsed_note:
+                            parsed_note[field] += u'[sound:{}]'.format(
                                 audio['filename'])
 
                     self.media().writeData(audio['filename'], data)
@@ -69,16 +74,16 @@ class AnkiBridge:
                 errorMessage = str(e).replace("&", "&amp;").replace(
                     "<", "&lt;").replace(">", "&gt;")
                 for field in audio['fields']:
-                    if field in ankiNote:
-                        ankiNote[field] += errorMessage
+                    if field in parsed_note:
+                        parsed_note[field] += errorMessage
 
         collection = self.collection()
         self.startEditing()
-        collection.addNote(ankiNote)
+        collection.addNote(parsed_note)
         collection.autosave()
         self.stopEditing()
 
-        return ankiNote.id
+        return parsed_note.id
 
     def storeMediaFile(self, filename, data):
         self.deleteMediaFile(filename)
@@ -148,7 +153,7 @@ class AnkiBridge:
             return media
 
     ### Note builder ###
-    def createNote(self, note):
+    def create_parsed_note(self, note: Dict) -> ParsedNote:
         collection = self.collection()
 
         model = collection.models.byName(note['modelName'])

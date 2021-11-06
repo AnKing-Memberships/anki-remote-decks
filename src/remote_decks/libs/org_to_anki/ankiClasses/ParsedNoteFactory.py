@@ -1,9 +1,9 @@
-from .AnkiNote import AnkiNote
+from .ParsedNote import ParsedNote
 from ..org_parser import NoteFactoryUtils
 from ..org_parser import ParserUtils
 
 
-class AnkiNoteFactory:
+class ParsedNoteFactory:
 
     utils = NoteFactoryUtils.NoteFactoryUtils()
 
@@ -46,8 +46,8 @@ class AnkiNoteFactory:
         # 3. Has card type cloze
         return len(self.currentAnswers) > 0 or len(self.codeSection) > 0 or self.parameters.get("type") == "Cloze" or self.parameters.get("type") == "Cloze"
 
-    def build_note(self) -> AnkiNote:
-        result = AnkiNote()
+    def parse(self) -> ParsedNote:
+        result = ParsedNote()
 
         # Add Question (it's always just one question XXX)
         for line in self.currentQuestions:

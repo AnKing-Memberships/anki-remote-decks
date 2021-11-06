@@ -1,7 +1,7 @@
 
 from typing import List
 
-from ..ankiClasses.AnkiNote import AnkiNote
+from ..ankiClasses.ParsedNote import ParsedNote
 
 
 class AnkiDeck:
@@ -43,7 +43,7 @@ class AnkiDeck:
     def getParameter(self, key, default=None):
         return self._parameters.get(key, default)
 
-    def get_notes(self, parentName=None, parentParamaters=None, joiner='::') -> List[AnkiNote]:
+    def get_notes(self, parentName=None, parentParamaters=None, joiner='::') -> List[ParsedNote]:
         result = []
 
         for question in self._ankiQuestions:

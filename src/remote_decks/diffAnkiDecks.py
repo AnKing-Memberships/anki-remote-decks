@@ -17,12 +17,12 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
         note_by_id[(key, remote_note["modelName"])] = remote_note
 
     def local_note_for_remote_note(remote_note):
-        built_note = built_note_for_remote_note(remote_note)
-        key = _get_key(built_note)
-        result = note_by_id.get((key, built_note["modelName"]), None)
+        note_dict = note_dict_for_remote_note(remote_note)
+        key = _get_key(note_dict)
+        result = note_by_id.get((key, note_dict["modelName"]), None)
         return result
 
-    def built_note_for_remote_note(remote_note):
+    def note_dict_for_remote_note(remote_note):
         result = build_note_dict(remote_note)
         return result
 
@@ -37,13 +37,13 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
             new_notes.append((remote_note, -1))
         else:
             # updated note
-            built_note = built_note_for_remote_note(remote_note)
+            note_dict = note_dict_for_remote_note(remote_note)
             changed = False
             for fields in local_note.get("fields").keys():
-                if not (local_note.get("fields").get(fields).get("value") == built_note.get("fields").get(fields)):
+                if not (local_note.get("fields").get(fields).get("value") == note_dict.get("fields").get(fields)):
                     changed = True
                     break
-            if local_note["tags"] != built_note["tags"]:
+            if local_note["tags"] != note_dict["tags"]:
                 changed = True
 
             if changed:
@@ -51,8 +51,8 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
 
     remote_note_ids = set()
     for remote_note in remote_deck.get_notes():
-        built_note = built_note_for_remote_note(remote_note)
-        remote_note_ids.add((_get_key(built_note), built_note["modelName"]))
+        note_dict = note_dict_for_remote_note(remote_note)
+        remote_note_ids.add((_get_key(note_dict), note_dict["modelName"]))
 
     for id_, local_note in note_by_id.items():
         if id_ not in remote_note_ids:

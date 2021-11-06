@@ -2,13 +2,11 @@ from .AnkiQuestionMedia import AnkiQuestionMedia
 from .NamedNoteField import NamedNoteField
 
 
-class AnkiNote:
+class ParsedNote:
 
-    def __init__(self, question=None):
+    def __init__(self):
         self.deckName = None
         self.question = []
-        if question != None:
-            self.question.append(question)
         self._answers = []
         self._tags = []
         self._comments = []
@@ -99,7 +97,7 @@ class AnkiNote:
 
     # Comparison to other questions
     def __eq__(self, other):
-        if not isinstance(other, AnkiNote):
+        if not isinstance(other, ParsedNote):
             return False
 
         return self.question == other.question and self.getAnswers() == other.getAnswers() and self.getTags() == other.getTags(

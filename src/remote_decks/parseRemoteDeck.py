@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from .libs.org_to_anki import config
-from .libs.org_to_anki.build_deck import build_new_deck
+from .libs.org_to_anki.build_deck import build_deck_from_org_lines
 
 
 # Should get the remote deck and return an Anki Deck
@@ -47,10 +47,9 @@ def _parseHtmlPageToAnkiDeck(data):
     deckName = orgData["deckName"]
     lines = orgData["data"]
 
-    # TODO update org_to_anki to have function for this
     # Ensure images are lazy loaded to reduce load
     config.lazyLoadImages = True
-    deck = build_new_deck(lines, deckName)
+    deck = build_deck_from_org_lines(lines, deckName)
 
     return deck
 

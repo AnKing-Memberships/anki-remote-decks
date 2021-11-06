@@ -76,8 +76,8 @@ def _sync_deck(deck_diff):
 
     # Add new notes
     duplicateQuestion = 0
-    for anki_note_and_local_id in new_notes:
-        note, _ = anki_note_and_local_id
+    for parsed_note_and_local_id in new_notes:
+        note, _ = parsed_note_and_local_id
         try:
             ankiBridge.addNote(note)
         except Exception as e:
@@ -87,14 +87,14 @@ def _sync_deck(deck_diff):
                 raise e
 
     # Update existing notes
-    for anki_note_and_local_id in updated_notes:
-        note, note_id = anki_note_and_local_id
+    for parsed_note_and_local_id in updated_notes:
+        note, note_id = parsed_note_and_local_id
         built_note_ = build_note_dict(note)
         _update_note(note_id, built_note_)
 
     # Remove notes
-    for anki_note_and_local_id in removed_notes:
-        note, note_id = anki_note_and_local_id
+    for parsed_note_and_local_id in removed_notes:
+        note, note_id = parsed_note_and_local_id
         ankiBridge.deleteNotes([note_id])
 
 

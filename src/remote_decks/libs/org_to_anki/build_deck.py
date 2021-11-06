@@ -1,12 +1,12 @@
 
 from .ankiClasses.AnkiDeck import AnkiDeck
-from .ankiClasses.AnkiNoteFactory import AnkiNoteFactory
+from .ankiClasses.ParsedNoteFactory import ParsedNoteFactory
 
 
-def build_new_deck(lines, deckName):
+def build_deck_from_org_lines(lines, deckName):
 
     deck = AnkiDeck(deckName)
-    note_factory = AnkiNoteFactory(deckName)
+    note_factory = ParsedNoteFactory(deckName)
 
     groups = grouped_lines(lines)
 
@@ -21,7 +21,7 @@ def build_new_deck(lines, deckName):
             for field in group_lines[1:]:
                 note_factory.addAnswerLine(field)
 
-            new_anki_note = note_factory.build_note()
+            new_anki_note = note_factory.parse()
             deck.add_note(new_anki_note)
 
         elif type == "comment":
