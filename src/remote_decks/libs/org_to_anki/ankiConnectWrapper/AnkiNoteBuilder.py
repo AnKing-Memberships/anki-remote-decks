@@ -9,32 +9,32 @@ class AnkiNoteBuilder:
         self.defaultDeck = defaultDeck
         self.oldDefaultDeck = defaultDeck
 
-    def built_note(self, ankiQuestion):
+    def built_note(self, anki_note):
 
         # Check if should use no base deck
-        if ankiQuestion.getParameter("baseDeck", "true").lower() == "false":
+        if anki_note.getParameter("baseDeck", "true").lower() == "false":
             self.defaultDeck = None
         else:
             self.defaultDeck = self.oldDefaultDeck
 
         # All decks stored under default deck
-        if ankiQuestion.deckName == "" or ankiQuestion.deckName is None:
+        if anki_note.deckName == "" or anki_note.deckName is None:
             # TODO log note was built on default deck
             deckName = self.defaultDeck
-        deckName = self._getFullDeckPath(ankiQuestion.deckName)
+        deckName = self._getFullDeckPath(anki_note.deckName)
 
         # Defaults to basic type by default
-        modelName = ankiQuestion.getParameter("Note type", "Basic")
+        modelName = anki_note.getParameter("Note type", "Basic")
 
         note = {"deckName": deckName, "modelName": modelName}
-        note["tags"] = ankiQuestion.getTags()
+        note["tags"] = anki_note.getTags()
 
         note["fields"] = dict()
         field_infos = mw.col.models.by_name(modelName)['flds']
         field_names = [field["name"] for field in field_infos]
 
-        note["fields"][field_names[0]] = self.createQuestionString(ankiQuestion.getAllParamters(), ankiQuestion.getQuestions())
-        answers = ankiQuestion.getAnswers()
+        note["fields"][field_names[0]] = self.createQuestionString(anki_note.getAllParamters(), anki_note.getQuestions())
+        answers = anki_note.getAnswers()
         for field_name, answer in zip(field_names[1:], answers):
             note["fields"][field_name] = answer
 

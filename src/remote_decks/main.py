@@ -100,16 +100,26 @@ def _syncNewData(deckDiff):
         question = q["question"]
         noteId = q["noteId"]
 
-        builtQuestion = ankiNoteBuilder.built_note(question)
-        fields = builtQuestion["fields"]
-        note = {"id": noteId, "fields": fields}
-
-        ankiBridge.updateNoteFields(note)
+        built_note = ankiNoteBuilder.built_note(question)
+        _update_note(noteId, built_note)
 
     # Remove questions
     for q in removed_questions:
         noteId = q["noteId"]
         ankiBridge.deleteNotes([noteId])
+
+
+def _update_note(noteId, built_note):
+    fields = built_note["fields"]
+    ankiNote = mw.col.getNote(noteId)
+    if ankiNote is None:
+        raise Exception('note was not found: {}'.format(noteId))
+
+    for name, value in fields.items():
+        if name in ankiNote:
+            ankiNote[name] = value
+    ankiNote.tags = built_note["tags"]
+    ankiNote.flush()
 
 
 def addNewDeck():

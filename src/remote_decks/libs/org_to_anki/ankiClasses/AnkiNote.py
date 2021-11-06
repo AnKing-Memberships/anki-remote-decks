@@ -64,7 +64,7 @@ class AnkiNote:
         self._parameters[key] = value
 
         # Parameters is a tag
-        if key == "tag" or key == "tags":
+        if key.lower() == "tag" or key.lower() == "tags":
             for tag in value.split(","):
                 self.addTag(tag.strip())
 

@@ -40,9 +40,16 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
         else:
             # updated note
             built_note = built_note_for_remote_note(remote_note)
+            changed = False
             for fields in local_note.get("fields").keys():
                 if not (local_note.get("fields").get(fields).get("value") == built_note.get("fields").get(fields)):
-                    udpated_notes.append({"question": remote_note, "noteId": local_note["noteId"]})
+                    changed = True
+                    break
+            if local_note["tags"] != built_note["tags"]:
+                changed = True
+            
+            if changed:
+                udpated_notes.append({"question": remote_note, "noteId": local_note["noteId"]})
 
     remote_note_ids = set()
     for remote_note in remote_deck.getQuestions():
