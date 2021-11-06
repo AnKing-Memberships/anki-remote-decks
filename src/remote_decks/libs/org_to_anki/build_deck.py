@@ -21,7 +21,7 @@ def build_new_deck(lines, deckName):
             for field in group_lines[1:]:
                 note_factory.addAnswerLine(field)
 
-            newQuestion = note_factory.buildQuestion()
+            newQuestion = note_factory.buildNote()
             deck.addQuestion(newQuestion)
 
         elif type == "comment":

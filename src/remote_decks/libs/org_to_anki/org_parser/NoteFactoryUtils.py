@@ -11,33 +11,22 @@ class NoteFactoryUtils:
 
         self.lazyLoadImages = config.lazyLoadImages
 
-    def parseAnswerLine(self, answerLine, currentQuestion):
-        result = answerLine
+    def parseLine(self, line, note):
+        result = line
 
-        if re.search("\[image=[^]]+?\]", answerLine):
+        if re.search("\[image=[^]]+?\]", line):
             image_re = "\[image=(.+?), height=(.+?), width=(.+?)]"
-            url_sections = re.findall(image_re, answerLine)
+            url_sections = re.findall(image_re, line)
             for url_section in url_sections:
                 url, height, width = url_section
                 image_name = "img_" + hashlib.md5(url.encode()).hexdigest()
-                currentQuestion.addLazyImage(image_name, url, getImageFromUrl)
+                note.addLazyImage(image_name, url, getImageFromUrl)
 
                 image_html = f'<img src="{image_name}" height={height} width={width} />'
                 result = re.sub("\[image=[^]]+?\]",
                                 image_html, result, count=1)
 
         return result
-
-    def buildImageLine(self, imagePath, parameters={}):
-
-        # Check if any specific line paramters
-        if len(parameters) > 0:
-            styles = ""
-            for key in parameters.keys():
-                styles += "{}:{};".format(key, parameters.get(key))
-            return '<img src="{}" style="{}" />'.format(imagePath, styles)
-        else:
-            return '<img src="{}" />'.format(imagePath)
 
     def removeAsterisk(self, line):  # (str)
         if line.strip()[0] == "*":
