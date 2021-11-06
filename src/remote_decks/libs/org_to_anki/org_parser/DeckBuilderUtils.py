@@ -13,78 +13,46 @@ class DeckBuilderUtils:
 
         self.lazyLoadImages = config.lazyLoadImages
 
-    # Used to check if extra data is containted within the line
-    def parseAnswerLine(self, answerLine, filePath, currentQuestion): # (str, str, AnkiQuestion)
+    def parseAnswerLine(self, answerLine, filePath, currentQuestion):
+
+        result = answerLine
 
         # Check if line needs to be parsed
-        if "[" in answerLine and "]" in answerLine:
+        if re.search("\[image=[^]]+\]", answerLine):
             # Image metadata
             # TODO we are getting Spans in here and are creating nonsense characters
-            potentialLineParamtmeters = {}
-            if len(answerLine.split("#")) > 1:
-                potentialLineParamtmeters = convertLineToParameters(answerLine.split("#")[1].strip())
 
-            # Image from urls will be lazy loaded
-            if "http" in answerLine or "www." in answerLine:
-                if "[image=" in answerLine:
-                    print("Trying to get image using: {}".format(answerLine.encode("utf-8")))
-                    print("lazyLoading is currently: {}".format(config.lazyLoadImages))
+            # XXX there has to be a comment, or this fails
+            line_parameters = convertLineToParameters(answerLine.split("#")[-1].strip())
 
-                    # TODO names should make some sense
-                    potentialUrls = re.findall("\[image=[^]]+\]", answerLine.strip())
-                    if len(potentialUrls) != 0:
-                        urlSection = potentialUrls[0]
-                        if ("[image=" in urlSection):
-                            url = urlSection.replace("[image=", "")[:-1]
-                        else:
-                            raise Exception("Unknown media format")
-                        urlName = "downloaded_image_" + hashlib.md5(url.encode()).hexdigest()
+            url_sections = re.findall("\[image=[^]]+\]", answerLine.strip())
+            for url_section in url_sections:
+                url = url_section.replace("[image=", "")[:-1]
+                image_name = "downloaded_image_" + hashlib.md5(url_section.encode()).hexdigest()
 
-                        # Lazy load images
-                        if config.lazyLoadImages == True:
-                            currentQuestion.addLazyImage(urlName, url, getImageFromUrl)
-                        else:
-                            imageData = getImageFromUrl(url)
-                            currentQuestion.addImage(urlName, imageData)
-
-                        imageHtml = self.buildImageLine(urlName, potentialLineParamtmeters)
-                        formattedAnswerLine = answerLine.split(urlSection)[0] + imageHtml + answerLine.split(urlSection)[1]
-                        # Remove comments
-                        if len(potentialLineParamtmeters) > 0:
-                            formattedAnswerLine = formattedAnswerLine.split("#")[0]
-
-                        return formattedAnswerLine
-
-            # Get image from local file
-            elif answerLine.count("[") == 1 and answerLine.count("]") == 1:
-                relativeImagePath = answerLine.split("[")[1].split("]")[0]
-                fileName = os.path.basename(relativeImagePath)
-                baseDirectory = os.path.dirname(filePath) 
-                imagePath = os.path.join(baseDirectory, relativeImagePath)
-
-                if len(relativeImagePath) > 0 and os.path.exists(imagePath) and os.path.isfile(imagePath):
-                    with open(imagePath, "rb") as file:
-                        data = file.read()
-                        currentQuestion.addImage(fileName, data)
-
-                    answerLine = self.buildImageLine(os.path.basename(imagePath), potentialLineParamtmeters)
-
-                    return answerLine
-
+                if config.lazyLoadImages == True:
+                    currentQuestion.addLazyImage(image_name, url, getImageFromUrl)
                 else:
-                    print("Could not find image on line: {}".format(answerLine.encode("utf-8")))
-            else:
-                print("Could not parse image from line: {}".format(answerLine.encode("utf-8")))
-        
-        return answerLine
+                    imageData = getImageFromUrl(url)
+                    currentQuestion.addImage(image_name, imageData)
+
+                imageHtml = self.buildImageLine(image_name, {})
+                result = re.sub("\[image=[^]]+\]", imageHtml, result, count=1)
+
+            # Remove comment
+            # XXX there has to be a comment, or this fails
+            if len(line_parameters) > 0:
+                result = result.rsplit("#", maxsplit=1)[0]
+
+        return result
     
-    def buildImageLine(self, imagePath, paramters={}):
+    def buildImageLine(self, imagePath, parameters={}):
 
         # Check if any specific line paramters
-        if len(paramters) > 0:
+        if len(parameters) > 0:
             styles = ""
-            for key in paramters.keys():
-                styles += "{}:{};".format(key, paramters.get(key))
+            for key in parameters.keys():
+                styles += "{}:{};".format(key, parameters.get(key))
             return '<img src="{}" style="{}" />'.format(imagePath, styles)
         else:
             return '<img src="{}" />'.format(imagePath)

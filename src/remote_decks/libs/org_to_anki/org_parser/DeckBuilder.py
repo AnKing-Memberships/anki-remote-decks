@@ -1,18 +1,15 @@
 
-from ..ankiClasses.AnkiQuestion import AnkiQuestion
 from ..ankiClasses.AnkiDeck import AnkiDeck
 from ..ankiClasses.AnkiQuestionFactory import AnkiQuestionFactory
-from . import DeckBuilderUtils
-from . import ParserUtils
-
-import os
+from . import DeckBuilderUtils, ParserUtils
 
 
 class DeckBuilder:
 
     utils = DeckBuilderUtils.DeckBuilderUtils()
 
-    def buildDeck(self, data, deckName, filePath, fileType ='basic'): # ([str], str, str, str)
+    # ([str], str, str, str)
+    def buildDeck(self, data, deckName, filePath, fileType='basic'):
 
         deck = AnkiDeck(deckName)
 
@@ -30,18 +27,20 @@ class DeckBuilder:
 
         # TODO: Remove lower
         if fileType.lower() == 'basic':
-            deck = self._buildNewDeck(questions, deckName, filePath, currentDeck=deck)
+            deck = self._buildNewDeck(
+                questions, deckName, filePath, currentDeck=deck)
         elif fileType.lower() == 'topics':
             deck = self._buildTopics(questions, deckName, filePath, deck)
         elif fileType.lower() == 'flattopics':
             deck = self._buildFlatTopics(questions, deckName, filePath, deck)
         elif fileType.lower() == 'organisedflatfile':
-            deck = self._buildOrganisedFlatFile(questions, deckName, filePath, deck)
+            deck = self._buildOrganisedFlatFile(
+                questions, deckName, filePath, deck)
         elif fileType.lower() == 'organisedfile':
-            deck = self._buildOrganisedFile(questions, deckName, filePath, deck)
+            deck = self._buildOrganisedFile(
+                questions, deckName, filePath, deck)
         else:
             raise Exception('Unsupported file type: ' + fileType)
-
 
         return deck
 
@@ -77,7 +76,8 @@ class DeckBuilder:
                     formattedQuestions.append(q)
                 else:
                     formattedQuestions.append(q)
-            deck = self._buildNewDeck(formattedQuestions, deckName, filePath, 2, 3, deck)
+            deck = self._buildNewDeck(
+                formattedQuestions, deckName, filePath, 2, 3, deck)
 
         return deck
 
@@ -92,8 +92,9 @@ class DeckBuilder:
                     continue
                 else:
                     formattedQuestions.append(q)
-            deck = self._buildNewDeck(formattedQuestions, deckName, filePath, 2, 3, deck)
-        
+            deck = self._buildNewDeck(
+                formattedQuestions, deckName, filePath, 2, 3, deck)
+
         return deck
 
     def _buildOrganisedFlatFile(self, questions, deckName, filePath, deck):
@@ -116,7 +117,8 @@ class DeckBuilder:
                     formattedQuestions.append(q)
                 else:
                     formattedQuestions.append(q)
-            deck = self._buildNewDeck(formattedQuestions, deckName, filePath, 3, 4, deck)
+            deck = self._buildNewDeck(
+                formattedQuestions, deckName, filePath, 3, 4, deck)
 
         return deck
 
@@ -127,7 +129,7 @@ class DeckBuilder:
 
         for line in questions:
             # first line
-            noAsterisk =self.utils.countAsterisk(line)
+            noAsterisk = self.utils.countAsterisk(line)
             if noAsterisk == 1:
                 if len(currentSection) > 0:
                     subDeck = currentSection[:]
@@ -153,7 +155,7 @@ class DeckBuilder:
         if len(questions) == 0:
             return deck
 
-        # Get current metadata 
+        # Get current metadata
         sectionMetadata = {}
 
         # Get section comments
@@ -164,12 +166,12 @@ class DeckBuilder:
 
         # Answer are indented by a single or more Asterisks
         numberOfQuestionAsterisk = questionLine
-        numberOfAnswerAsterisk = answerLine
         questionFactory = AnkiQuestionFactory(deckName, filePath)
 
         # Add metadata for section to new Question
-        for key in sectionMetadata: # This is a bit lazy
-            questionFactory.addCommentLine("# {} = {}".format(key, sectionMetadata[key]))
+        for key in sectionMetadata:  # This is a bit lazy
+            questionFactory.addCommentLine(
+                "# {} = {}".format(key, sectionMetadata[key]))
 
         questionMetadata = {}
         while len(questions) > 0:
@@ -181,17 +183,19 @@ class DeckBuilder:
             # Question line
             if noAsterisk == numberOfQuestionAsterisk:
                 # Allow for multi line questions
-                # If new question line and question is already valid 
+                # If new question line and question is already valid
                 # => generate ankiQuestion and start new
                 if questionFactory.isValidQuestion():
-                    questionMetadata = {} # Clear questionMetadata
+                    questionMetadata = {}  # Clear questionMetadata
 
-                    newQuestion = questionFactory.buildQuestion() # Possibly include sectionMetadata here?
+                    # Possibly include sectionMetadata here?
+                    newQuestion = questionFactory.buildQuestion()
                     if (newQuestion.getParameter("type") != 'notes'):
                         deck.addQuestion(newQuestion)
                     # Add metadata for section to new Question
-                    for key in sectionMetadata: # This is a bit lazy
-                        questionFactory.addCommentLine("# {} = {}".format(key, sectionMetadata[key]))
+                    for key in sectionMetadata:  # This is a bit lazy
+                        questionFactory.addCommentLine(
+                            "# {} = {}".format(key, sectionMetadata[key]))
 
                     questionFactory.addQuestionLine(line)
                 else:
@@ -199,7 +203,8 @@ class DeckBuilder:
 
             # Answer line
             elif noAsterisk > numberOfQuestionAsterisk:
-                questionFactory.addAnswerLine(line, questionMetadata) ### No subquestion line => logic should be moved when answers are built ###
+                # No subquestion line => logic should be moved when answers are built ###
+                questionFactory.addAnswerLine(line, questionMetadata)
 
             # Comment line
             elif line.strip()[0] == "#":
@@ -223,14 +228,16 @@ class DeckBuilder:
                         break
                     else:
                         codeSection.append(codeLine)
-                questionFactory.addCode(language, codeSection) 
+                questionFactory.addCode(language, codeSection)
             else:
-                print("Current line is not recognised: {}".format(line.encode("utf-8")))
-        
+                print("Current line is not recognised: {}".format(
+                    line.encode("utf-8")))
+
         # Add last question
         if questionFactory.isValidQuestion():
             # TODO take meta stuff into account
-            newQuestion = questionFactory.buildQuestion()  # Possibly include sectionMetadata here?
+            # Possibly include sectionMetadata here?
+            newQuestion = questionFactory.buildQuestion()
             if (newQuestion.getParameter("type") != 'notes'):
                 deck.addQuestion(newQuestion)
 
@@ -240,11 +247,12 @@ class DeckBuilder:
 
         # Number of key types are not supported at the section level
         if (key != "type" or key != "noteType") and value == "Cloze":
-            return False 
+            return False
         else:
-            return True 
+            return True
 
-    def _sortData(self, rawFileData): #(rawFileData: [str]) -> ([str], [str]):
+    # (rawFileData: [str]) -> ([str], [str]):
+    def _sortData(self, rawFileData):
 
         comments, questions = [], []
 

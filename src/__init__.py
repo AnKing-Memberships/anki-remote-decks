@@ -34,7 +34,7 @@ def addDeck():
 
         addNewDeck()
     # General exception
-    except Exception as e:
+    except RuntimeError as e:
         errorMessage = str(e)
         showInfo(errorTemplate.format(errorMessage))
         if ankiBridge.getConfig().get("debug",False) == True:
@@ -52,7 +52,7 @@ def syncDecks():
         ankiBridge.startEditing()
         _syncDecks()
     # General exception
-    except Exception as e:
+    except RuntimeError as e:
         errorMessage = str(e)
         showInfo(errorTemplate.format(errorMessage))
         if ankiBridge.getConfig().get("debug",False) == True:
@@ -72,7 +72,7 @@ def removeRemote():
 
         removeDecks()
     # General exception
-    except Exception as e:
+    except RuntimeError as e:
         errorMessage = str(e)
         showInfo(errorTemplate.format(errorMessage))
         if ankiBridge.getConfig().get("debug",False) == True:

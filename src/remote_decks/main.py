@@ -58,8 +58,8 @@ def syncDecks():
 
             # Local deck has no cards
             if localDeck["result"] == []:
-                ankiBridge.uploadNewDeck(remoteDeck)
-                showInfo("Deck has no cards. Uploading {}".format(deckName))
+                ankiBridge.addCardsToEmptyDeck(remoteDeck)
+                showInfo("Adding cards to empty deck: {}".format(deckName))
             else:
                 # Diff decks and sync
                 deckDiff = diffAnkiDecks(remoteDeck, localDeck)
@@ -140,7 +140,7 @@ def addNewDeck():
     config["remote-decks"][url] = {"url": url, "deckName": deckName}
 
     # Upload new deck
-    ankiBridge.uploadNewDeck(deck)
+    ankiBridge.addCardsToEmptyDeck(deck)
 
     # Update config on success
     ankiBridge.writeConfig(config)

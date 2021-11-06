@@ -20,7 +20,7 @@ class AnkiPluginConnector:
         self.oldDefaulDeck = defaultDeck
         self.AnkiNoteBuilder = AnkiNoteBuilder(self.defaultDeck)
 
-    def uploadNewDeck(self, deck):  # AnkiDeck
+    def addCardsToEmptyDeck(self, deck):  # AnkiDeck
 
         # Check if should use base deck
         if deck.getParameter("baseDeck", "true").lower() == "false":
