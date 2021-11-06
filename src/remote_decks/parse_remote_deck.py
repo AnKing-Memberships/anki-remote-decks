@@ -8,7 +8,7 @@ from .libs.org_to_anki.build_deck_from_org_lines import build_deck_from_org_line
 
 
 # Should get the remote deck and return an Anki Deck
-def get_remote_deck(url):
+def getRemoteDeck(url):
 
     # Get remote page
     # TODO Validate url before getting data

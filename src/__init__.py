@@ -1,11 +1,11 @@
 from aqt import mw
-from aqt.utils import showInfo
 from aqt.qt import *
-from .remote_decks.main import add_new_deck
-from .remote_decks.main import sync_decks
-from .remote_decks.main import remove_remote_deck 
-from .remote_decks.libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import AnkiPluginConnector
-    
+from aqt.utils import showInfo
+
+from .remote_decks.libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import \
+    AnkiPluginConnector
+from .remote_decks.main import add_new_deck, remove_remote_deck, sync_decks
+
 errorTemplate = """
 Hey there! It seems an error has occurred while running.
 
@@ -15,6 +15,7 @@ If you would like me to fix it please report it here: https://github.com/c-okell
 
 Please be sure to provide as much information as possible. Specifically the file the caused the error.
 """
+
 
 def addDeck():
 
@@ -27,13 +28,14 @@ def addDeck():
     except RuntimeError as e:
         errorMessage = str(e)
         showInfo(errorTemplate.format(errorMessage))
-        if ankiBridge.getConfig().get("debug",False) == True:
+        if ankiBridge.getConfig().get("debug", False) == True:
             trace = traceback.format_exc()
             showInfo(str(trace))
 
     finally:
         ankiBridge.stopEditing()
         mw.reset()
+
 
 def syncDecks():
 
@@ -46,7 +48,7 @@ def syncDecks():
     except RuntimeError as e:
         errorMessage = str(e)
         showInfo(errorTemplate.format(errorMessage))
-        if ankiBridge.getConfig().get("debug",False) == True:
+        if ankiBridge.getConfig().get("debug", False) == True:
             trace = traceback.format_exc()
             showInfo(str(trace))
 
@@ -54,6 +56,7 @@ def syncDecks():
         showInfo("Sync completed")
         ankiBridge.stopEditing()
         mw.reset()
+
 
 def removeRemote():
 
@@ -66,13 +69,14 @@ def removeRemote():
     except RuntimeError as e:
         errorMessage = str(e)
         showInfo(errorTemplate.format(errorMessage))
-        if ankiBridge.getConfig().get("debug",False) == True:
+        if ankiBridge.getConfig().get("debug", False) == True:
             trace = traceback.format_exc()
             showInfo(str(trace))
 
     finally:
         ankiBridge.stopEditing()
         mw.reset()
+
 
 if (QAction != None and mw != None):
     remoteDecksSubMenu = QMenu("Manage remote deck", mw)
