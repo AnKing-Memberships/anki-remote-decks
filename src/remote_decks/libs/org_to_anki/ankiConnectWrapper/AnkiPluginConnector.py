@@ -1,16 +1,11 @@
 import base64
 
 from .. import config
+from ..ankiClasses.AnkiDeck import AnkiDeck
 from ..build_note_dict import build_note_dict
 from .AnkiBridge import AnkiBridge
-from .AnkiNoteBuilder import AnkiNoteBuilder
 
-try:
-    import aqt
-
-    from ..noteModels.models import NoteModels
-except:
-    pass
+import aqt
 
 
 class AnkiPluginConnector:
@@ -18,23 +13,24 @@ class AnkiPluginConnector:
     def __init__(self, defaultDeck=config.defaultDeck):
         self.AnkiBridge = AnkiBridge()
         self.root_deck = defaultDeck
-        self.AnkiNoteBuilder = AnkiNoteBuilder(self.root_deck)
 
-    def create_new_deck(self, deck):
+    def create_new_deck(self, deck: AnkiDeck):
 
         self._buildNewDecksAsRequired(deck.getDeckNames())
 
-        # Build new notes
-        notes = self.buildIndividualAnkiNotes(deck.getQuestions())
-        media = self.prepareMedia(deck.getMedia())
-
         # Add notes
-        for note in notes:
-            self.AnkiBridge.addNote(note)
+        note_dicts = [
+            build_note_dict(note, self.root_deck)
+            for note in deck.get_notes()
+        ]
+        for note_dict in note_dicts:
+            self.AnkiBridge.addNote(note_dict)
 
         # Add media
+        media = self.prepareMedia(deck.getMedia())
         for media_info in media:
-            self.AnkiBridge.storeMediaFile(media_info.get("fileName"), media_info.get("data"))
+            self.AnkiBridge.storeMediaFile(
+                media_info.get("fileName"), media_info.get("data"))
 
     def prepareMedia(self, ankiMedia):  # ([])
 
@@ -67,40 +63,17 @@ class AnkiPluginConnector:
         else:
             return str(self.root_deck + "::" + deckName)
 
-    def buildAnkiNotes(self, ankiQuestions):  # [AnkiQuestion]
-
-        notes = []
-        for i in ankiQuestions:
-            notes.append(self.AnkiNoteBuilder.built_note(i))
-
-        finalNotes = {}
-        finalNotes["notes"] = notes
-        return finalNotes
-
-    def buildIndividualAnkiNotes(self, anki_notes):
-        allNotes = []
-        for note in anki_notes:
-            allNotes.append(build_note_dict(note, self.root_deck))
-
-        return allNotes
-
-    ### These methods are still in beta and are subject to change ###
-
-    # Get deck Notes
     def getDeckNotes(self, deckName):
         # TODO => revisit return type
         return self.AnkiBridge.getDeckNotes(deckName)
 
-    # Add new notes
     def addNote(self, note):
         builtNote = self.buildIndividualAnkiNotes([note])[0]
         self.AnkiBridge.addNote(builtNote)
 
-    # Delete notes
     def deleteNotes(self, noteIds):
         self.AnkiBridge.deleteNotes(noteIds)
 
-    # Update Note fields
     def updateNoteFields(self, note):
 
         # TODO ensure note is logically correct
@@ -112,7 +85,6 @@ class AnkiPluginConnector:
     def writeConfig(self, config):
         aqt.mw.addonManager.writeConfig(__name__, config)
 
-    # Check for a file
     def checkForMediaFile(self, filename):
         return self.AnkiBridge.checkForMediaFile(filename)
 
@@ -121,33 +93,3 @@ class AnkiPluginConnector:
 
     def stopEditing(self):
         self.AnkiBridge.stopEditing()
-
-    # Check for note models and add them if they do not exists
-
-    def checkForDefaultModelsInEnglish(self):
-        # Be default we expect the following english named models
-        # Basic, Basic (and reversed card) and Cloze
-
-        models = self.AnkiBridge.modelNames()
-        localModels = NoteModels()
-
-        # Create Basic
-        if "Basic" not in models:
-            model = localModels.getBasicModel()
-
-            self.AnkiBridge.createModel(model.get("name"), model.get(
-                "inOrderFields"), model.get("cardTemplates"), model.get("css"))
-
-        # Create Basic and reversed
-        if "Basic (and reversed card)" not in models:
-            model = localModels.getRevseredModel()
-
-            self.AnkiBridge.createModel(model.get("name"), model.get(
-                "inOrderFields"), model.get("cardTemplates"), model.get("css"))
-
-        # Create Close
-        if "Cloze" not in models:
-            model = localModels.getClozeModel()
-
-            self.AnkiBridge.createModel(model.get("name"), model.get(
-                "inOrderFields"), model.get("cardTemplates"), model.get("css"))

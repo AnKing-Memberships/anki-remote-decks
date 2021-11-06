@@ -1,4 +1,9 @@
 
+from typing import List
+
+from ..ankiClasses.AnkiNote import AnkiNote
+
+
 class AnkiDeck:
 
     # Basic file => represented in a single deck
@@ -38,7 +43,7 @@ class AnkiDeck:
     def getParameter(self, key, default=None):
         return self._parameters.get(key, default)
 
-    def get_notes(self, parentName=None, parentParamaters=None, joiner='::'):  # (str, dict, str)
+    def get_notes(self, parentName=None, parentParamaters=None, joiner='::') -> List[AnkiNote]:
         result = []
 
         for question in self._ankiQuestions:
