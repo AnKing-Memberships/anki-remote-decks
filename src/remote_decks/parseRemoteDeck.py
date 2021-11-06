@@ -41,7 +41,7 @@ def _determinePageType(url):
         return None
 
 
-def _parseHtmlPageToAnkiDeck(data, lazyLoadImages=False):
+def _parseHtmlPageToAnkiDeck(data):
 
     orgData = _generateOrgListFromHtmlPage(data)
     deckName = orgData["deckName"]
@@ -102,21 +102,19 @@ def _getCssStyles(cssData):
     return cssStyles
 
 
-def _generateOrgListFromHtmlPage(data):
+def _generateOrgListFromHtmlPage(cell_content):
 
-    orgStar = "*"
-    soup = BeautifulSoup(data, 'html.parser')
+    soup = BeautifulSoup(cell_content, 'html.parser')
     title = soup.find("div", {"id": "title"})
     deckName = title.text
-    contents = soup.find_all(["ul", "p"])
+    contents = soup.find_all(["table", "p"])
 
-    # Try and get CSS
-
+    # Try and get CSS XXX
+    # XXX code is weird
     cssData = soup.find_all("style")
     cssStyles = {}
     for css in cssData:
-        cssData = soup.find_all("style")[1]
-        styleSection = _getCssStyles(cssData)
+        styleSection = _getCssStyles(css)
         cssStyles.update(styleSection)
 
     multiCommentSection = False
@@ -137,7 +135,6 @@ def _generateOrgListFromHtmlPage(data):
             # Get span text
             line = ""
             textSpans = item.find_all("span")
-            # print(textSpans)
             for span in textSpans:
                 line += span.text
 
@@ -153,79 +150,50 @@ def _generateOrgListFromHtmlPage(data):
             if len(line) > 0 and linkText != line:
                 orgFormattedFile.append(line)
 
-        # Hanlde list line
-        elif item.name == "ul":
-            # print("ul")
-            listItems = item.find_all("li")
-
-            # Item class is in the format of "lst-kix_f64mhuyvzb86-1" with last numbers as the level
-            classes = item["class"]  # .split("-")[-1])
-            regexSearch = "^[\w]{3}-[\w]{3,}-[\d]{1,}"
-            indentation = -1
-            for i in classes:
-                if re.match(regexSearch, i) != None:
-                    indentation = int(i.split("-")[-1])
-
-            if (indentation == -1):
-                raise Exception("Could not find the correct indentation")
-
-            itemText = []
+        elif item.name == "table":
+            rows = []
             imageConfig = ""
-            for i in listItems:
-                # Get all spans
-                textSpans = i.find_all("span")
-                lineOfText = ""
-                for span in textSpans:
-                    lineOfText += _extractSpanWithStyles(span, cssStyles)
+            for row in item.find_all('tr'):
+                cell_content = row.find('td')
+                _apply_styles(cell_content, cssStyles)
 
-                    # Check for images and take first
-                    images = span.find_all("img")
-                    if len(images) >= 1:
-                        imageTemplate = " [image={}]"  # height={}, width={}
-                        # Get image styles
-                        styles = images[0]["style"]
-                        searchRegex = "{}:\s[^;]*;"
-                        height = re.findall(searchRegex.format("height"), styles)[
-                            0].split(":")[1].replace(";", "").strip()
-                        width = re.findall(searchRegex.format("width"), styles)[
-                            0].split(":")[1].replace(";", "").strip()
-                        imageConfig = " # height={}, width={}".format(
-                            height, width)
+                images = cell_content.find_all("img")
+                images_string = ""
+                for img in images:
+                    styles = img["style"]
+                    searchRegex = "{}:\s[^;]*;"
+                    height = re.findall(searchRegex.format("height"), styles)[0].split(":")[1].replace(";", "").strip()
+                    width = re.findall(searchRegex.format("width"), styles)[0].split(":")[1].replace(";", "").strip()
+                    image_text = f"[image={img['src']}]"
+                    images_string += image_text
+                    _clean_up(img)
 
-                        # Build image line
-                        imageText = imageTemplate.format(images[0]["src"])
-                        lineOfText += imageText
+                cell_html = cell_content.decode_contents()
 
-                # Add image metadata at end of line once
-                if len(imageConfig) > 0:
-                    lineOfText += imageConfig
-                    imageConfig = ""
+                if images:
+                    images_string += f" # height={height}, width={width}"
+                    cell_html += images_string
+                    if len(imageConfig) > 0:
+                        cell_html += imageConfig
 
-                itemText.append(lineOfText)
+                rows.append(cell_html)
 
-            indentation += 1
-            orgStars = (orgStar * indentation)
-            for line in itemText:
-                if (_closeLineBreak(line)):
-                    orgFormattedFile.append(line)
-                else:
-                    formattedListItem = "{} {}".format(orgStars, line)
-                    orgFormattedFile.append(formattedListItem)
+            orgFormattedFile.append(f"* {rows[0]}")
+            for x in rows[1:]:
+                orgFormattedFile.append(f"** {x}")
 
         else:
-            pass
-            # print("Unknown line type: {}".format(item.name))
+            print(f"Unknown line type: {item.name}")
 
     return {"deckName": deckName, "data": orgFormattedFile}
 
+def _clean_up(item):
+    parent = item.parent
+    item.decompose()
+    if not parent.contents:
+        _clean_up(parent)
+
 ### Special cases ###
-
-
-def _closeLineBreak(line):
-    # Case to support Cloze cards
-    if ("#type=cloze" == line.replace(" ", "").lower()):
-        return True
-    return False
 
 
 def _startOfMultiLineComment(item):
@@ -254,31 +222,30 @@ def _endOfMultiLineComment(item):
     return False
 
 
-def _extractSpanWithStyles(soupSpan, cssStyles):
+def _apply_styles(item, cssStyles, depth=0):
+    if not hasattr(item, "attrs"):
+        return
 
-    text = soupSpan.text
-    classes = soupSpan.attrs.get("class")
+    classes = item.attrs.get("class", None)
+    if classes is None:
+        return
 
-    if classes == None:
-        return text
+    for class_ in classes:
+        for style in cssStyles.get(class_, []):
+            item["style"] = item.get("style", "") + style + "; "
+    item.attrs.pop("class", None)
 
-    relevantStyles = []
-    for clazz in classes:
-        if cssStyles.get(clazz) != None:
-            for style in cssStyles.get(clazz):
-                relevantStyles.append(style)
+    for child in item.children:
+        _apply_styles(child, cssStyles, depth=depth+1)
 
-    if len(relevantStyles) > 0:
-        styleAttributes = ""
-        for i in relevantStyles:
-            styleAttributes += i + ";"
-        # Added whitespace around the text. The whitespace is getting stripped somewhere
-        text = text.strip()
-        styledText = '<span style="{}"> {} </span>'.format(
-            styleAttributes, text)
-        return styledText
-    else:
-        return text
+    # text in tables gets wrapped into p tags by default which should be removed
+    if depth == 1 and item.name == "p" and len(list(item.children)) == 1:
+        item.replace_with(list(item.children)[0])
+
+    if item.name == "span" and len(item.attrs) == 0:
+        item.unwrap()
+
+    return item
 
 
 def _download(url):
@@ -292,7 +259,3 @@ def _download(url):
     data = data.decode("utf-8")
     data = data.replace("\xa0", " ")
     return data
-
-
-if __name__ == "__main__":
-    pass
