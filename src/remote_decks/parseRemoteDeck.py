@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from .libs.org_to_anki import config
-from .libs.org_to_anki.build_deck import build_deck_from_org_lines
+from .libs.org_to_anki.build_deck_from_org_lines import build_deck_from_org_lines
 
 
 # Should get the remote deck and return an Anki Deck
