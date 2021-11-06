@@ -5,7 +5,7 @@ from aqt.qt import *
 from aqt.utils import showInfo
 
 from .diffAnkiDecks import diffAnkiDecks
-from .libs.org_to_anki.build_note import build_note_dict
+from .libs.org_to_anki.build_note_dict import build_note_dict
 from .libs.org_to_anki.utils import getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
 
