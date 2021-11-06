@@ -93,7 +93,7 @@ class AnkiDeck:
 
         return deckNames
 
-    def addQuestion(self, ankiQuestion):  # (AnkiQuestion)
+    def add_note(self, ankiQuestion):  # (AnkiQuestion)
         # Add media to the main deck
         # TODO if question is removed its media will remain in the deck
         if ankiQuestion.hasMedia():

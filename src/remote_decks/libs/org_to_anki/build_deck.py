@@ -21,8 +21,8 @@ def build_new_deck(lines, deckName):
             for field in group_lines[1:]:
                 note_factory.addAnswerLine(field)
 
-            newQuestion = note_factory.buildNote()
-            deck.addQuestion(newQuestion)
+            new_anki_note = note_factory.build_note()
+            deck.add_note(new_anki_note)
 
         elif type == "comment":
             section_comments = []

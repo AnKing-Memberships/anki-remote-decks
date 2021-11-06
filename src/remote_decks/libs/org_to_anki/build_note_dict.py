@@ -2,8 +2,10 @@ from typing import Dict
 
 from aqt import mw
 
+from .ankiClasses import AnkiNote
 
-def build_note_dict(anki_note, root_deck=None) -> Dict:
+
+def build_note_dict(anki_note: AnkiNote, root_deck=None) -> Dict:
 
     assert anki_note.deckName
     if root_deck is not None:

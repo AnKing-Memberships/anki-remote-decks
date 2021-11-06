@@ -46,33 +46,32 @@ class AnkiNoteFactory:
         # 3. Has card type cloze
         return len(self.currentAnswers) > 0 or len(self.codeSection) > 0 or self.parameters.get("type") == "Cloze" or self.parameters.get("type") == "Cloze"
 
-    def buildNote(self):
-
-        new_note = AnkiNote()
+    def build_note(self) -> AnkiNote:
+        result = AnkiNote()
 
         # Add Question (it's always just one question XXX)
         for line in self.currentQuestions:
             line = self.utils.removeAsterisk(line)
             line = self.utils.formatLine(line)
-            line = self.utils.parseLine(line, new_note)
-            new_note.addQuestion(line)
+            line = self.utils.parseLine(line, result)
+            result.addQuestion(line)
 
         # Add answers
         for dataLine in self.currentAnswers:
             line = dataLine.get("line")
             fieldName = dataLine.get("metadata").get("fieldName", None)
             line = self.utils.removeAsterisk(line)
-            line = self.utils.parseLine(line, new_note)
-            new_note.addAnswer(line, fieldName)
+            line = self.utils.parseLine(line, result)
+            result.addAnswer(line, fieldName)
 
         # Add comments
         for comment in self.currentComments:
-            new_note.addComment(comment)
+            result.addComment(comment)
             parameters = ParserUtils.convertLineToParameters(comment)
             for key in parameters.keys():
-                new_note.addParameter(key, parameters.get(key))
+                result.addParameter(key, parameters.get(key))
 
         # Clear data and return
         self.clearData()
 
-        return new_note
+        return result
