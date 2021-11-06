@@ -25,7 +25,6 @@ def build_deck_from_org_lines(lines, deckName):
             deck.add_note(new_anki_note)
 
         elif type == "comment":
-            section_comments = []
             for line in group_lines:
                 section_comments.append(line)
 
