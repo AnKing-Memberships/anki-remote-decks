@@ -156,21 +156,37 @@ def _generateOrgListFromHtmlPage(cell_content):
                 images = cell_content.find_all("img")
                 for img in images:
                     styles = img["style"]
-                    width = m.group(1) if (m := re.search("width: (.+?);", styles)) else ""
-                    height = m.group(1) if (m := re.search("height: (.+?);", styles)) else ""
+                    width = m.group(1) if (m := re.search(
+                        "width: (.+?);", styles)) else ""
+                    height = m.group(1) if (m := re.search(
+                        "height: (.+?);", styles)) else ""
                     image_text = f"[image={img['src']}, height={height}, width={width}]"
                     img.parent.insert_after(image_text)
                     _clean_up(img)
 
                 cell_html = cell_content.decode_contents()
+                cell_html = substitute_cloze_aliases(cell_html)
                 rows.append(cell_html)
-
 
             orgFormattedFile.append(f"* {rows[0]}")
             for x in rows[1:]:
                 orgFormattedFile.append(f"** {x}")
 
     return {"deckName": deckName, "data": orgFormattedFile}
+
+
+def substitute_cloze_aliases(html):
+    result = html
+    cloze_idx = 1
+    alias_re = "\$(\d*)\$(.+?)\$\$"
+    while (m := re.search(alias_re, result)):
+        number, text = m.groups()
+        cur_idx = number if number else cloze_idx
+        result = re.sub(
+            alias_re, f"{{{{c{cur_idx}::{text.strip()}}}}}", result, count=1)
+        cloze_idx += 1
+    return result
+
 
 def _clean_up(item):
     parent = item.parent
