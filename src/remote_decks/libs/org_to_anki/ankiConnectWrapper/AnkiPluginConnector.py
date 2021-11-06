@@ -118,14 +118,8 @@ class AnkiPluginConnector:
 
     # Add new notes
     def addNote(self, note):
-        self.checkForDefaultModelsInEnglish()
-        # TODO need to verify this note is logically correct
-        if isinstance(note, list) == False:
-            note = [note]
-
-        builtNotes = self.buildIndividualAnkiNotes(note)
-        for note in builtNotes:
-            self.AnkiBridge.addNote(note)
+        builtNote = self.buildIndividualAnkiNotes([note])[0]
+        self.AnkiBridge.addNote(builtNote)
 
     # Delete notes
     def deleteNotes(self, noteIds):
