@@ -30,9 +30,8 @@ class AnkiQuestionFactory:
     def hasData(self):
         return len(self.currentQuestions) == 0 or len(self.currentAnswers) == 0 and len(self.currentComments) == 0
 
-    def addAnswerLine(self, line, metadata={}):
-        # Check for answers for other fields
-        metadata = dict(metadata)
+    def addAnswerLine(self, line):
+        metadata = self.parameters
         self.currentAnswers.append({"line":line, "metadata":metadata})
 
     def addQuestionLine(self, question):

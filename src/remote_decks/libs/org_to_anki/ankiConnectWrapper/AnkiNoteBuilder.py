@@ -31,10 +31,11 @@ class AnkiNoteBuilder:
 
         note["fields"] = dict()
         field_infos = mw.col.models.by_name(modelName)['flds']
-        note["fields"][field_infos[0]['name']] = self.createQuestionString(ankiQuestion.getAllParamters(), ankiQuestion.getQuestions())
-        field_names = [field["name"] for field in field_infos[1:]]
+        field_names = [field["name"] for field in field_infos]
+
+        note["fields"][field_names[0]] = self.createQuestionString(ankiQuestion.getAllParamters(), ankiQuestion.getQuestions())
         answers = ankiQuestion.getAnswers()
-        for field_name, answer in zip(field_names, answers):
+        for field_name, answer in zip(field_names[1:], answers):
             note["fields"][field_name] = answer
 
         return note

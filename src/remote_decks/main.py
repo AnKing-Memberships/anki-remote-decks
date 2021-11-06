@@ -1,26 +1,21 @@
 
 try:
-    # import the main window object (mw) from aqt
     from aqt import mw
-    # import the "show info" tool from utils.py
-    from aqt.utils import showInfo
-    # import all of the Qt GUI library
     from aqt.qt import *
+    from aqt.utils import showInfo
 except:
     QAction = None
     mw = None
     pass
 
 import sys
-# Project deps
+
 from .diffAnkiDecks import diffAnkiDecks
+from .libs.org_to_anki.utils import getAnkiNoteBuilder, getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
 
-# Install 3rd party library deps
-from .libs.org_to_anki.utils import getAnkiPluginConnector
-from .libs.org_to_anki.utils import getAnkiNoteBuilder
-
 remoteDefaultDeck = "Remote Decks"
+
 
 def syncDecks():
 
@@ -54,7 +49,7 @@ def syncDecks():
 
             # Get current deck
             deckName = baseDeck + deckJoiner + deckName
-            localDeck = {"result":ankiBridge.getDeckNotes(deckName)}
+            localDeck = {"result": ankiBridge.getDeckNotes(deckName)}
 
             # Local deck has no cards
             if localDeck["result"] == []:
@@ -65,17 +60,20 @@ def syncDecks():
                 deckDiff = diffAnkiDecks(remoteDeck, localDeck)
                 _syncNewData(deckDiff)
         except Exception as e:
-            deckMessage = "\nThe following deck failed to sync: {}".format(deckName)
-            raise type(e)(str(e) + deckMessage).with_traceback(sys.exc_info()[2])
+            deckMessage = "\nThe following deck failed to sync: {}".format(
+                deckName)
+            raise type(e)(
+                str(e) + deckMessage).with_traceback(sys.exc_info()[2])
 
     # Sync missing media data
     formattedMedia = ankiBridge.prepareMedia(allDeckMedia)
 
-    # Add Media 
+    # Add Media
     # TODO This need to be refactored back into org_to_anki
     for i in formattedMedia:
         ankiBridge.AnkiBridge.storeMediaFile(i.get("fileName"), i.get("data"))
-   
+
+
 def _syncNewData(deckDiff):
 
     ankiBridge = getAnkiPluginConnector(remoteDefaultDeck)
@@ -103,7 +101,7 @@ def _syncNewData(deckDiff):
         question = i["question"]
         noteId = i["noteId"]
 
-        builtQuestion = ankiNoteBuilder.buildNote(question) 
+        builtQuestion = ankiNoteBuilder.buildNote(question)
         fields = builtQuestion["fields"]
         note = {"id": noteId, "fields": fields}
 
@@ -116,11 +114,11 @@ def _syncNewData(deckDiff):
 
 
 def addNewDeck():
-    
 
     # Get url from user
     # url = "https://docs.google.com/document/d/e/2PACX-1vRXWGu8WvCojrLqMKsf8dTOWstrO1yLy4-8x5nkauRnMyc4iXrwkwY3BThXHc3SlCYqv8ULxup3QiOX/pub"
-    url, okPressed = QInputDialog.getText(mw, "Get Remote Deck url","Remote Deck url:", QLineEdit.Normal, "")
+    url, okPressed = QInputDialog.getText(
+        mw, "Get Remote Deck url", "Remote Deck url:", QLineEdit.Normal, "")
     if okPressed == False:
         return
 
@@ -136,7 +134,7 @@ def addNewDeck():
     if config["remote-decks"].get(url, None) != None:
         showInfo("Decks has already been added for: {}".format(url))
         return
-    
+
     config["remote-decks"][url] = {"url": url, "deckName": deckName}
 
     # Upload new deck
@@ -144,6 +142,7 @@ def addNewDeck():
 
     # Update config on success
     ankiBridge.writeConfig(config)
+
 
 def removeRemoteDeck():
 
@@ -164,12 +163,13 @@ def removeRemoteDeck():
 
     # Ask user to choose a deck
     advBasicOptions = deckNames
-    selection, okPressed = QInputDialog.getItem(mw, "Select Deck to Unlink", "Select a deck to Unlink", advBasicOptions, 0, False)
+    selection, okPressed = QInputDialog.getItem(
+        mw, "Select Deck to Unlink", "Select a deck to Unlink", advBasicOptions, 0, False)
 
     # Remove desk
     if okPressed == True:
 
-        newRemoteDeck =remoteDecks.copy()
+        newRemoteDeck = remoteDecks.copy()
         for k in remoteDecks.keys():
             if selection == remoteDecks[k]["deckName"]:
                 newRemoteDeck.pop(k)

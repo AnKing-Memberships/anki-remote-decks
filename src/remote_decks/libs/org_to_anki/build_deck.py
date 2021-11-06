@@ -1,7 +1,6 @@
 
 from .ankiClasses.AnkiDeck import AnkiDeck
 from .ankiClasses.AnkiQuestionFactory import AnkiQuestionFactory
-from .org_parser import ParserUtils
 
 
 def build_new_deck(lines, deckName):
@@ -12,29 +11,24 @@ def build_new_deck(lines, deckName):
 
     groups = grouped_lines(lines)
 
-    sectionParameters = {}
+    sectionComments = []
     for type, group_lines in groups:
 
         if type == "note":
-            for key, value in sectionParameters.items():
-                questionFactory.addCommentLine(f"# {key} : {value}")
+            for comment in sectionComments:
+                questionFactory.addCommentLine(comment)
 
             questionFactory.addQuestionLine(group_lines[0])
             for field in group_lines[1:]:
-                questionFactory.addAnswerLine(field, sectionParameters)
+                questionFactory.addAnswerLine(field)
 
             newQuestion = questionFactory.buildQuestion()
             deck.addQuestion(newQuestion)
 
         elif type == "comment":
-            questionFactory.currentComments = []
-            questionFactory.parameters = {}
-
+            sectionComments = []
             for line in group_lines:
-                questionFactory.addCommentLine(line)
-                parameters = ParserUtils.convertLineToParameters(line)
-                for key in parameters.keys():
-                    sectionParameters[key] = parameters.get(key)
+                sectionComments.append(line)
 
     return deck
 
