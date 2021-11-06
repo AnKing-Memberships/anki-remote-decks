@@ -10,9 +10,9 @@ from .AnkiBridge import AnkiBridge
 
 class AnkiPluginConnector:
 
-    def __init__(self, defaultDeck=config.defaultDeck):
+    def __init__(self, rootDeck=config.rootDeck):
         self.AnkiBridge = AnkiBridge()
-        self.root_deck = defaultDeck
+        self.root_deck = rootDeck
 
     def create_new_deck(self, deck: ParsedDeck):
 
