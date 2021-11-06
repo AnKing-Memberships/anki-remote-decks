@@ -10,5 +10,4 @@ install:
   - ./installOrgToAnki.sh
 # command to run tests
 script:
-  - ./installOrgToAnki.sh
   - python3 setup.py nosetests
