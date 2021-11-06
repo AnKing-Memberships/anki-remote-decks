@@ -29,7 +29,7 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
     new_notes = []
     udpated_notes = []
     removed_notes = []
-    for remote_note in remote_deck.getQuestions():
+    for remote_note in remote_deck.get_notes():
         local_note = local_note_for_remote_note(remote_note)
 
         if local_note is None:
@@ -50,14 +50,14 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
                 udpated_notes.append((remote_note, local_note["noteId"]))
 
     remote_note_ids = set()
-    for remote_note in remote_deck.getQuestions():
+    for remote_note in remote_deck.get_notes():
         built_note = built_note_for_remote_note(remote_note)
         remote_note_ids.add((_get_key(built_note), built_note["modelName"]))
 
     for id_, local_note in note_by_id.items():
         if id_ not in remote_note_ids:
             noteId = local_note["noteId"]
-            removed_notes.append(("", noteId))
+            removed_notes.append((None, noteId))
 
     return {"new_notes": new_notes, "updated_notes": udpated_notes, "removed_notes": removed_notes}
 
