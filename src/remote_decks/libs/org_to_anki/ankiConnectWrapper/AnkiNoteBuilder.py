@@ -12,10 +12,10 @@ class AnkiNoteBuilder:
     def built_note(self, anki_note):
 
         # Check if should use no base deck
-        if anki_note.getParameter("baseDeck", "true").lower() == "false":
-            self.defaultDeck = None
-        else:
+        if anki_note.getParameter("baseDeck", "true").lower() == "true":
             self.defaultDeck = self.oldDefaultDeck
+        else:
+            self.defaultDeck = None
 
         # All decks stored under default deck
         if anki_note.deckName == "" or anki_note.deckName is None:
