@@ -152,31 +152,22 @@ def _generateOrgListFromHtmlPage(cell_content):
 
         elif item.name == "table":
             rows = []
-            imageConfig = ""
             for row in item.find_all('tr'):
                 cell_content = row.find('td')
                 _apply_styles(cell_content, cssStyles)
 
                 images = cell_content.find_all("img")
-                images_string = ""
                 for img in images:
                     styles = img["style"]
-                    searchRegex = "{}:\s[^;]*;"
-                    height = re.findall(searchRegex.format("height"), styles)[0].split(":")[1].replace(";", "").strip()
-                    width = re.findall(searchRegex.format("width"), styles)[0].split(":")[1].replace(";", "").strip()
-                    image_text = f"[image={img['src']}]"
-                    images_string += image_text
+                    width = m.group(1) if (m := re.search("width: (.+?);", styles)) else ""
+                    height = m.group(1) if (m := re.search("height: (.+?);", styles)) else ""
+                    image_text = f"[image={img['src']}, height={height}, width={width}]"
+                    img.parent.insert_after(image_text)
                     _clean_up(img)
 
                 cell_html = cell_content.decode_contents()
-
-                if images:
-                    images_string += f" # height={height}, width={width}"
-                    cell_html += images_string
-                    if len(imageConfig) > 0:
-                        cell_html += imageConfig
-
                 rows.append(cell_html)
+
 
             orgFormattedFile.append(f"* {rows[0]}")
             for x in rows[1:]:

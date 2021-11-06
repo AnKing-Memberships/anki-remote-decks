@@ -1,9 +1,6 @@
-from ..ankiClasses.AnkiDeck import AnkiDeck
 from .ParserUtils import getImageFromUrl
-from .ParserUtils import convertLineToParameters
 from .. import config
 
-import os
 import re
 import hashlib
 
@@ -14,35 +11,18 @@ class DeckBuilderUtils:
         self.lazyLoadImages = config.lazyLoadImages
 
     def parseAnswerLine(self, answerLine, filePath, currentQuestion):
-
         result = answerLine
 
-        # Check if line needs to be parsed
-        if re.search("\[image=[^]]+\]", answerLine):
-            # Image metadata
-            # TODO we are getting Spans in here and are creating nonsense characters
-
-            # XXX there has to be a comment, or this fails
-            line_parameters = convertLineToParameters(answerLine.split("#")[-1].strip())
-
-            url_sections = re.findall("\[image=[^]]+\]", answerLine.strip())
+        if re.search("\[image=[^]]+?\]", answerLine):
+            image_re = "\[image=(.+?), height=(.+?), width=(.+?)]"
+            url_sections = re.findall(image_re, answerLine)
             for url_section in url_sections:
-                url = url_section.replace("[image=", "")[:-1]
-                image_name = "downloaded_image_" + hashlib.md5(url_section.encode()).hexdigest()
+                url, height, width = url_section
+                image_name = "img_" + hashlib.md5(url.encode()).hexdigest()
+                currentQuestion.addLazyImage(image_name, url, getImageFromUrl)
 
-                if config.lazyLoadImages == True:
-                    currentQuestion.addLazyImage(image_name, url, getImageFromUrl)
-                else:
-                    imageData = getImageFromUrl(url)
-                    currentQuestion.addImage(image_name, imageData)
-
-                imageHtml = self.buildImageLine(image_name, {})
-                result = re.sub("\[image=[^]]+\]", imageHtml, result, count=1)
-
-            # Remove comment
-            # XXX there has to be a comment, or this fails
-            if len(line_parameters) > 0:
-                result = result.rsplit("#", maxsplit=1)[0]
+                image_html = f'<img src="{image_name}" height={height} width={width} />'
+                result = re.sub("\[image=[^]]+?\]", image_html, result, count=1)
 
         return result
     
