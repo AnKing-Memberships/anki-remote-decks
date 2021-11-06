@@ -4,7 +4,7 @@ from aqt.qt import *
 from .remote_decks.main import add_new_deck
 from .remote_decks.main import sync_decks
 from .remote_decks.main import remove_remote_deck 
-from .remote_decks.libs.org_to_anki.utils import getAnkiPluginConnector as getConnector
+from .remote_decks.libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import AnkiPluginConnector
     
 errorTemplate = """
 Hey there! It seems an error has occurred while running.
@@ -19,7 +19,7 @@ Please be sure to provide as much information as possible. Specifically the file
 def addDeck():
 
     try:
-        ankiBridge = getConnector()
+        ankiBridge = AnkiPluginConnector()
         ankiBridge.startEditing()
         add_new_deck()
 
@@ -38,7 +38,7 @@ def addDeck():
 def syncDecks():
 
     try:
-        ankiBridge = getConnector()
+        ankiBridge = AnkiPluginConnector()
         ankiBridge.startEditing()
         sync_decks()
 
@@ -58,7 +58,7 @@ def syncDecks():
 def removeRemote():
 
     try:
-        ankiBridge = getConnector()
+        ankiBridge = AnkiPluginConnector()
         ankiBridge.startEditing()
         remove_remote_deck()
 

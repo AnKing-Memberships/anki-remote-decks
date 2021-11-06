@@ -7,8 +7,8 @@ from aqt.utils import showInfo
 from .deck_diff import deck_diff
 from .libs.org_to_anki.note_dict_from_parsed_note import \
     note_dict_from_parsed_note
-from .libs.org_to_anki.utils import getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
+from .libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import AnkiPluginConnector
 
 # name of the deck that is the root of all remote decks
 ROOT_DECK_NAME = "Remote Decks"
@@ -17,7 +17,7 @@ ROOT_DECK_NAME = "Remote Decks"
 def sync_decks():
 
     # Get all remote decks from config
-    ankiBridge = getAnkiPluginConnector(ROOT_DECK_NAME)
+    ankiBridge = AnkiPluginConnector(ROOT_DECK_NAME)
 
     # Get config data
     remote_data = ankiBridge.getConfig()
@@ -70,7 +70,7 @@ def sync_decks():
 
 def _sync_deck(deck_diff):
 
-    ankiBridge = getAnkiPluginConnector(ROOT_DECK_NAME)
+    ankiBridge = AnkiPluginConnector(ROOT_DECK_NAME)
 
     new_notes = deck_diff["new_notes"]
     updated_notes = deck_diff["updated_notes"]
@@ -123,7 +123,7 @@ def add_new_deck():
         return
 
     # Get data and build deck
-    ankiBridge = getAnkiPluginConnector()
+    ankiBridge = AnkiPluginConnector()
 
     deck = getRemoteDeck(url)
     deckName = deck.deckName
@@ -147,7 +147,7 @@ def add_new_deck():
 def remove_remote_deck():
 
     # Get current remote decks
-    ankiBridge = getAnkiPluginConnector()
+    ankiBridge = AnkiPluginConnector()
 
     config = ankiBridge.getConfig()
     remoteDecks = config["remote-decks"]
