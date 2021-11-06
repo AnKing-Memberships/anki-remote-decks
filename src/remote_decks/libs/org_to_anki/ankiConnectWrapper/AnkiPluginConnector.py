@@ -19,12 +19,8 @@ class AnkiPluginConnector:
         self._buildNewDecksAsRequired(deck.getDeckNames())
 
         # Add notes
-        note_dicts = [
-            note_dict_from_parsed_note(note, self.root_deck)
-            for note in deck.get_notes()
-        ]
-        for note_dict in note_dicts:
-            self.AnkiBridge.addNote(note_dict)
+        for note in deck.get_notes():
+            self.addNote(note)
 
         # Add media
         media = self.prepareMedia(deck.getMedia())
@@ -68,8 +64,8 @@ class AnkiPluginConnector:
         return self.AnkiBridge.getDeckNotes(deckName)
 
     def addNote(self, note):
-        builtNote = self.buildIndividualAnkiNotes([note])[0]
-        self.AnkiBridge.addNote(builtNote)
+        note_dict = note_dict_from_parsed_note(note, self.root_deck)
+        self.AnkiBridge.addNote(note_dict)
 
     def deleteNotes(self, noteIds):
         self.AnkiBridge.deleteNotes(noteIds)
