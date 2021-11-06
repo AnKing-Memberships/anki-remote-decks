@@ -1,6 +1,0 @@
-* Second question
-** Second answer extended
-* Third Quesiton
-** Third Answer
-* Forth Question
-** Forth Answer
