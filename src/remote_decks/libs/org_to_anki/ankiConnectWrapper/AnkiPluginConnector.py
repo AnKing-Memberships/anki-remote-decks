@@ -1,7 +1,7 @@
 import base64
 
 from .. import config
-from ..build_note import build_note
+from ..build_note_dict import build_note_dict
 from .AnkiBridge import AnkiBridge
 from .AnkiNoteBuilder import AnkiNoteBuilder
 
@@ -80,7 +80,7 @@ class AnkiPluginConnector:
     def buildIndividualAnkiNotes(self, anki_notes):
         allNotes = []
         for note in anki_notes:
-            allNotes.append(build_note(note, self.root_deck))
+            allNotes.append(build_note_dict(note, self.root_deck))
 
         return allNotes
 

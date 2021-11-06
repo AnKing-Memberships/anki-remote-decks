@@ -50,7 +50,7 @@ class AnkiNoteFactory:
 
         new_note = AnkiNote()
 
-        # Add Question
+        # Add Question (it's always just one question XXX)
         for line in self.currentQuestions:
             line = self.utils.removeAsterisk(line)
             line = self.utils.formatLine(line)

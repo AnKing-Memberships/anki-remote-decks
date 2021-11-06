@@ -5,7 +5,7 @@ from aqt.qt import *
 from aqt.utils import showInfo
 
 from .diffAnkiDecks import diffAnkiDecks
-from .libs.org_to_anki.build_note import build_note
+from .libs.org_to_anki.build_note import build_note_dict
 from .libs.org_to_anki.utils import getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
 
@@ -89,7 +89,7 @@ def _sync_deck(deck_diff):
     # Update existing notes
     for note_info in updated_notes:
         note, note_id = note_info
-        built_note_ = build_note(note)
+        built_note_ = build_note_dict(note)
         _update_note(note_id, built_note_)
 
     # Remove notes

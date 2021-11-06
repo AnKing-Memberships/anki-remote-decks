@@ -3,7 +3,7 @@ from typing import Dict
 from aqt import mw
 
 
-def build_note(anki_note, root_deck=None) -> Dict:
+def build_note_dict(anki_note, root_deck=None) -> Dict:
 
     assert anki_note.deckName
     if root_deck is not None:
