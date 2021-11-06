@@ -18,7 +18,7 @@
 
 from typing import Dict
 
-from ..ankiClasses.ParsedNote import ParsedNote
+from anki.notes import Note
 
 try:
     import base64
@@ -46,12 +46,12 @@ class AnkiBridge:
         self.x = "test"
 
     ### Core methods ###
-    def addNote(self, note: Dict):
-        parsed_note = self.create_parsed_note(note)
-        if parsed_note == None:
+    def addNote(self, note_dict: Dict):
+        note = self.create_note(note_dict)
+        if note == None:
             return
 
-        audio = note.get('audio')
+        audio = note_dict.get('audio')
         if audio is not None and len(audio['fields']) > 0:
             try:
                 data = self.download(audio['url'])
@@ -65,8 +65,8 @@ class AnkiBridge:
 
                 if not skip:
                     for field in audio['fields']:
-                        if field in parsed_note:
-                            parsed_note[field] += u'[sound:{}]'.format(
+                        if field in note:
+                            note[field] += u'[sound:{}]'.format(
                                 audio['filename'])
 
                     self.media().writeData(audio['filename'], data)
@@ -74,16 +74,16 @@ class AnkiBridge:
                 errorMessage = str(e).replace("&", "&amp;").replace(
                     "<", "&lt;").replace(">", "&gt;")
                 for field in audio['fields']:
-                    if field in parsed_note:
-                        parsed_note[field] += errorMessage
+                    if field in note:
+                        note[field] += errorMessage
 
         collection = self.collection()
         self.startEditing()
-        collection.addNote(parsed_note)
+        collection.addNote(note)
         collection.autosave()
         self.stopEditing()
 
-        return parsed_note.id
+        return note.id
 
     def storeMediaFile(self, filename, data):
         self.deleteMediaFile(filename)
@@ -153,7 +153,7 @@ class AnkiBridge:
             return media
 
     ### Note builder ###
-    def create_parsed_note(self, note: Dict) -> ParsedNote:
+    def create_note(self, note: Dict) -> Note:
         collection = self.collection()
 
         model = collection.models.byName(note['modelName'])

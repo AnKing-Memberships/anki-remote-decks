@@ -5,7 +5,7 @@ from aqt.qt import *
 from aqt.utils import showInfo
 
 from .diffAnkiDecks import diffAnkiDecks
-from .libs.org_to_anki.build_note_dict import build_note_dict
+from .libs.org_to_anki.note_dict_from_parsed_note import note_dict_from_parsed_note
 from .libs.org_to_anki.utils import getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
 
@@ -89,7 +89,7 @@ def _sync_deck(deck_diff):
     # Update existing notes
     for parsed_note_and_local_id in updated_notes:
         note, note_id = parsed_note_and_local_id
-        built_note_ = build_note_dict(note)
+        built_note_ = note_dict_from_parsed_note(note)
         _update_note(note_id, built_note_)
 
     # Remove notes

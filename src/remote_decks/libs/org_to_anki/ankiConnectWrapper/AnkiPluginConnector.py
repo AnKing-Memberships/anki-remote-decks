@@ -2,7 +2,7 @@ import base64
 
 from .. import config
 from ..ankiClasses.AnkiDeck import AnkiDeck
-from ..build_note_dict import build_note_dict
+from ..note_dict_from_parsed_note import note_dict_from_parsed_note
 from .AnkiBridge import AnkiBridge
 
 import aqt
@@ -20,7 +20,7 @@ class AnkiPluginConnector:
 
         # Add notes
         note_dicts = [
-            build_note_dict(note, self.root_deck)
+            note_dict_from_parsed_note(note, self.root_deck)
             for note in deck.get_notes()
         ]
         for note_dict in note_dicts:

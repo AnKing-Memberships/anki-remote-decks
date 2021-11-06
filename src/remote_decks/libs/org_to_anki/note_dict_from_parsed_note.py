@@ -5,7 +5,7 @@ from aqt import mw
 from .ankiClasses.ParsedNote import ParsedNote
 
 
-def build_note_dict(parsed_note: ParsedNote, root_deck=None) -> Dict:
+def note_dict_from_parsed_note(parsed_note: ParsedNote, root_deck=None) -> Dict:
 
     assert parsed_note.deckName
     if root_deck is not None:

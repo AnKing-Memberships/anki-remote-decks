@@ -5,7 +5,7 @@ from anki.notes import Note
 from aqt import mw
 
 from .libs.org_to_anki.ankiClasses import AnkiDeck
-from .libs.org_to_anki.build_note_dict import build_note_dict
+from .libs.org_to_anki.note_dict_from_parsed_note import note_dict_from_parsed_note
 
 
 def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
@@ -23,7 +23,7 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
         return result
 
     def note_dict_for_remote_note(remote_note):
-        result = build_note_dict(remote_note)
+        result = note_dict_from_parsed_note(remote_note)
         return result
 
     new_notes = []
