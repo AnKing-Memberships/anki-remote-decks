@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from .libs.org_to_anki import config
-from .libs.org_to_anki.org_parser.parseData import buildNamedDeck
+from .libs.org_to_anki.build_deck import build_new_deck
 
 
 # Should get the remote deck and return an Anki Deck
@@ -45,12 +45,12 @@ def _parseHtmlPageToAnkiDeck(data):
 
     orgData = _generateOrgListFromHtmlPage(data)
     deckName = orgData["deckName"]
-    data = orgData["data"]
+    lines = orgData["data"]
 
     # TODO update org_to_anki to have function for this
     # Ensure images are lazy loaded to reduce load
     config.lazyLoadImages = True
-    deck = buildNamedDeck(data, deckName)
+    deck = build_new_deck(lines, deckName)
 
     return deck
 
@@ -116,6 +116,7 @@ def _generateOrgListFromHtmlPage(cell_content):
     multiCommentSection = False
     orgFormattedFile = []
     for item in contents:
+
         # Handle multiLine comment section
         if _startOfMultiLineComment(item):
             multiCommentSection = True
@@ -127,7 +128,7 @@ def _generateOrgListFromHtmlPage(cell_content):
             continue
 
         # Handle normal line
-        if item.name == "p":
+        elif item.name == "p":
             # Get span text
             line = ""
             textSpans = item.find_all("span")
@@ -168,9 +169,6 @@ def _generateOrgListFromHtmlPage(cell_content):
             orgFormattedFile.append(f"* {rows[0]}")
             for x in rows[1:]:
                 orgFormattedFile.append(f"** {x}")
-
-        else:
-            print(f"Unknown line type: {item.name}")
 
     return {"deckName": deckName, "data": orgFormattedFile}
 

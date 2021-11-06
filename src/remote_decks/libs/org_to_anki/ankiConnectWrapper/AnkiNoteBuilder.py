@@ -23,13 +23,8 @@ class AnkiNoteBuilder:
             deckName = self.defaultDeck
         deckName = self._getFullDeckPath(ankiQuestion.deckName)
 
-        # TODO: Verify model name correctly and use parameters
         # Defaults to basic type by default
-        modelName = ankiQuestion.getParameter("noteType", "Basic")
-
-        # Legacy support to note types
-        if ankiQuestion.getParameter("type") is not None:
-            modelName = ankiQuestion.getParameter("type")
+        modelName = ankiQuestion.getParameter("Note type", "Basic")
 
         note = {"deckName": deckName, "modelName": modelName}
         note["tags"] = ankiQuestion.getTags()

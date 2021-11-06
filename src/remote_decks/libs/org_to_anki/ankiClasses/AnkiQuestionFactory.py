@@ -6,9 +6,8 @@ class AnkiQuestionFactory:
 
     utils = DeckBuilderUtils.DeckBuilderUtils()
 
-    def __init__(self, currentDeck, filePath, indentor = "*"):
+    def __init__(self, currentDeck, indentor = "*"):
         self.currentDeck = currentDeck
-        self.filePath = filePath
         self.indentor = indentor
         self.currentQuestions = []
         self.currentAnswers = []
@@ -71,7 +70,7 @@ class AnkiQuestionFactory:
         for line in self.currentQuestions:
             line = self.utils.removeAsterisk(line)
             line = self.utils.formatLine(line)
-            line = self.utils.parseAnswerLine(line, self.filePath, newQuestion)
+            line = self.utils.parseAnswerLine(line, newQuestion)
             newQuestion.addQuestion(line)
 
         # Add answers
@@ -97,12 +96,6 @@ class AnkiQuestionFactory:
         # Clear data and return
         self.clearData()
 
-        # print("Single question: " + str(self.questionsCreated))
-        # print("Question: {}".format(newQuestion.question))
-        # print("Answers: {}".format(newQuestion._answers))
-        # print("Fields: {}".format(newQuestion.getNamedFields()))
-        # print()
-
         return newQuestion
     
     def addAnswerToNewQuestion(self, answers, newQuestion, noQuestionAsterisk):
@@ -117,7 +110,7 @@ class AnkiQuestionFactory:
             # Answer line
             if noAsterisks == noQuestionAsterisk:
                 line = self.utils.removeAsterisk(line)
-                line = self.utils.parseAnswerLine(line, self.filePath, newQuestion)
+                line = self.utils.parseAnswerLine(line, newQuestion)
                 newQuestion.addAnswer(line, fieldName)
 
             else:
@@ -129,7 +122,7 @@ class AnkiQuestionFactory:
                     line = dataLine.get("line")
                     fieldName = dataLine.get("metadata").get("fieldName", None)
 
-                    line = self.utils.parseAnswerLine(line, self.filePath, newQuestion)
+                    line = self.utils.parseAnswerLine(line, newQuestion)
                     subList.append(line)
 
                 formatedSubList = self.utils.generateSublist(subList)

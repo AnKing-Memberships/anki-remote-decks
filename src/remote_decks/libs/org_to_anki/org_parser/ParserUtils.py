@@ -7,7 +7,7 @@ except:
     anki = None
     import requests
 
-    
+
 def getImageFromUrl(url):
 
     URL_TIMEOUT = 5
@@ -22,7 +22,8 @@ def getImageFromUrl(url):
 
     return content
 
-def convertCommentsToParameters(comments): # ([str])
+
+def convertCommentsToParameters(comments):
 
     parameters = {}
     for line in comments:
@@ -31,14 +32,13 @@ def convertCommentsToParameters(comments): # ([str])
     return parameters
 
 
-def convertLineToParameters(line): # str
+def convertLineToParameters(line):
 
     parameters = {}
     line = line.strip()[line.count("#"):]
 
-
     # Return if no paramters
-    if "=" not in line:
+    if ":" not in line:
         return {}
 
     pairs = line.split(",")
@@ -47,15 +47,15 @@ def convertLineToParameters(line): # str
     # This is for comma seperated lists
     formattedPairs = []
     for i in pairs:
-        if "=" not in i and len(formattedPairs) > 0:
+        if ":" not in i and len(formattedPairs) > 0:
             formattedPairs[-1] += "," + i
         else:
             formattedPairs.append(i)
 
     for item in formattedPairs:
-        if "=" in item:
+        if ":" in item:
             item = item.strip()
-            parts = item.split("=")
+            parts = item.split(":")
             key = parts[0].strip()
             value = parts[1].strip()
 
@@ -66,10 +66,3 @@ def convertLineToParameters(line): # str
                 parameters[key] = value
 
     return parameters
-
-# def validGlobalParameter(key, value):
-
-#     if key == "type" or key == "noteType":
-#         if 
-#     else:
-#         return True

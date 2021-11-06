@@ -4,13 +4,14 @@ from .. import config
 import re
 import hashlib
 
+
 class DeckBuilderUtils:
 
     def __init__(self):
 
         self.lazyLoadImages = config.lazyLoadImages
 
-    def parseAnswerLine(self, answerLine, filePath, currentQuestion):
+    def parseAnswerLine(self, answerLine, currentQuestion):
         result = answerLine
 
         if re.search("\[image=[^]]+?\]", answerLine):
@@ -22,10 +23,11 @@ class DeckBuilderUtils:
                 currentQuestion.addLazyImage(image_name, url, getImageFromUrl)
 
                 image_html = f'<img src="{image_name}" height={height} width={width} />'
-                result = re.sub("\[image=[^]]+?\]", image_html, result, count=1)
+                result = re.sub("\[image=[^]]+?\]",
+                                image_html, result, count=1)
 
         return result
-    
+
     def buildImageLine(self, imagePath, parameters={}):
 
         # Check if any specific line paramters
@@ -37,7 +39,7 @@ class DeckBuilderUtils:
         else:
             return '<img src="{}" />'.format(imagePath)
 
-    def removeAsterisk(self, line): # (str)
+    def removeAsterisk(self, line):  # (str)
         if line.strip()[0] == "*":
             line = line.strip().split(" ")[1:]
             line = " ".join(line)
@@ -45,10 +47,10 @@ class DeckBuilderUtils:
         else:
             return line
 
-    def countAsterisk(self, line): # (str)
+    def countAsterisk(self, line):  # (str)
         return line.split(' ')[0].count('*', 0, 10)
 
-    def generateSublist(self, subItems): # ([str])
+    def generateSublist(self, subItems):  # ([str])
 
         formatedList = []
 
@@ -70,7 +72,7 @@ class DeckBuilderUtils:
 
         return cleaned
 
-    def formatLine(self, line): # (str)
+    def formatLine(self, line):  # (str)
 
         formattedLine = line
 
