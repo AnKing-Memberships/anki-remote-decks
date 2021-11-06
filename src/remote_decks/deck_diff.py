@@ -4,11 +4,11 @@ from typing import Dict, List, Tuple
 from anki.notes import Note
 from aqt import mw
 
-from .libs.org_to_anki.parse_classes import AnkiDeck
+from .libs.org_to_anki.parse_classes import ParsedDeck
 from .libs.org_to_anki.note_dict_from_parsed_note import note_dict_from_parsed_note
 
 
-def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
+def deck_diff(remote_deck: ParsedDeck, local_notes: List[Note]):
 
     # the id is a tuple of the form: (first field content, modelName)
     note_by_id: Dict[Tuple[str, str], Note] = dict()

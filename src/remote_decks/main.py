@@ -4,8 +4,9 @@ from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
 
-from .diffAnkiDecks import diffAnkiDecks
-from .libs.org_to_anki.note_dict_from_parsed_note import note_dict_from_parsed_note
+from .deck_diff import deck_diff
+from .libs.org_to_anki.note_dict_from_parsed_note import \
+    note_dict_from_parsed_note
 from .libs.org_to_anki.utils import getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
 
@@ -46,12 +47,12 @@ def sync_decks():
 
             # Update existing deck or create new one
             if local_deck:
-                deckDiff = diffAnkiDecks(remote_deck, local_deck)
+                deckDiff = deck_diff(remote_deck, local_deck)
                 _sync_deck(deckDiff)
             else:
                 ankiBridge.create_new_deck(remote_deck)
                 showInfo("Adding cards to empty deck: {}".format(deck_name))
-                
+
         except Exception as e:
             deckMessage = "\nThe following deck failed to sync: {}".format(
                 deck_name)
@@ -63,7 +64,8 @@ def sync_decks():
 
     # Add Media
     for media_info in formattedMedia:
-        ankiBridge.AnkiBridge.storeMediaFile(media_info.get("fileName"), media_info.get("data"))
+        ankiBridge.AnkiBridge.storeMediaFile(
+            media_info.get("fileName"), media_info.get("data"))
 
 
 def _sync_deck(deck_diff):
