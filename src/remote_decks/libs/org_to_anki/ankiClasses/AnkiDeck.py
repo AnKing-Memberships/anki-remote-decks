@@ -1,4 +1,4 @@
-from .AnkiQuestion import AnkiQuestion
+from .AnkiNote import AnkiNote
 # from .AnkiQuestionMedia import AnkiQuestionMedia
 
 class AnkiDeck:

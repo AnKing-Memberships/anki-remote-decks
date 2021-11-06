@@ -9,7 +9,7 @@ class AnkiNoteBuilder:
         self.defaultDeck = defaultDeck
         self.oldDefaultDeck = defaultDeck
 
-    def buildNote(self, ankiQuestion):
+    def built_note(self, ankiQuestion):
 
         # Check if should use no base deck
         if ankiQuestion.getParameter("baseDeck", "true").lower() == "false":

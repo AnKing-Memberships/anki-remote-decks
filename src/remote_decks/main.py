@@ -49,15 +49,15 @@ def syncDecks():
 
             # Get current deck
             deckName = baseDeck + deckJoiner + deckName
-            localDeck = {"result": ankiBridge.getDeckNotes(deckName)}
+            local_deck = ankiBridge.getDeckNotes(deckName)
 
             # Local deck has no cards
-            if localDeck["result"] == []:
+            if local_deck == []:
                 ankiBridge.addCardsToEmptyDeck(remoteDeck)
                 showInfo("Adding cards to empty deck: {}".format(deckName))
             else:
                 # Diff decks and sync
-                deckDiff = diffAnkiDecks(remoteDeck, localDeck)
+                deckDiff = diffAnkiDecks(remoteDeck, local_deck)
                 _syncNewData(deckDiff)
         except Exception as e:
             deckMessage = "\nThe following deck failed to sync: {}".format(
@@ -79,17 +79,16 @@ def _syncNewData(deckDiff):
     ankiBridge = getAnkiPluginConnector(remoteDefaultDeck)
     ankiNoteBuilder = getAnkiNoteBuilder()
 
-    newQuestion = deckDiff["newQuestions"]
-    updatedQuestion = deckDiff["questionsUpdated"]
-    removedQuestion = deckDiff["removedQuestions"]
+    new_questions = deckDiff["newQuestions"]
+    updated_questions = deckDiff["questionsUpdated"]
+    removed_questions = deckDiff["removedQuestions"]
 
     # Add new question
     duplicateQuestion = 0
-    for i in newQuestion:
-        question = i["question"]
+    for q in new_questions:
+        question = q["question"]
         try:
             ankiBridge.addNote(question)
-        # Catch Duplicate card exceptions otherwise rethrow
         except Exception as e:
             if e.args[0] == "cannot create note because it is a duplicate":
                 duplicateQuestion += 1
@@ -97,20 +96,20 @@ def _syncNewData(deckDiff):
                 raise e
 
     # Update existing questions
-    for i in updatedQuestion:
-        question = i["question"]
-        noteId = i["noteId"]
+    for q in updated_questions:
+        question = q["question"]
+        noteId = q["noteId"]
 
-        builtQuestion = ankiNoteBuilder.buildNote(question)
+        builtQuestion = ankiNoteBuilder.built_note(question)
         fields = builtQuestion["fields"]
         note = {"id": noteId, "fields": fields}
 
         ankiBridge.updateNoteFields(note)
 
     # Remove questions
-    for i in removedQuestion:
-        noteId = i["noteId"]
-        ankiBridge.deleteNotes(noteId)
+    for q in removed_questions:
+        noteId = q["noteId"]
+        ankiBridge.deleteNotes([noteId])
 
 
 def addNewDeck():

@@ -2,7 +2,7 @@ from .AnkiQuestionMedia import AnkiQuestionMedia
 from .NamedNoteField import NamedNoteField
 from ..converters.codeHighlighter import highLightCode
 
-class AnkiQuestion:
+class AnkiNote:
 
     def __init__(self, question = None):
         self.deckName = None
@@ -127,7 +127,7 @@ class AnkiQuestion:
 
     # Comparison to other questions
     def __eq__(self, other):
-        if not isinstance(other, AnkiQuestion):
+        if not isinstance(other, AnkiNote):
             return False
 
         return self.question == other.question and self.getAnswers() == other.getAnswers() and self.getTags() == other.getTags(

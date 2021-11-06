@@ -1,34 +1,34 @@
 
 from .ankiClasses.AnkiDeck import AnkiDeck
-from .ankiClasses.AnkiQuestionFactory import AnkiQuestionFactory
+from .ankiClasses.AnkiNoteFactory import AnkiNoteFactory
 
 
 def build_new_deck(lines, deckName):
 
     deck = AnkiDeck(deckName)
 
-    questionFactory = AnkiQuestionFactory(deckName)
+    note_factory = AnkiNoteFactory(deckName)
 
     groups = grouped_lines(lines)
 
-    sectionComments = []
+    section_comments = []
     for type, group_lines in groups:
 
         if type == "note":
-            for comment in sectionComments:
-                questionFactory.addCommentLine(comment)
+            for comment in section_comments:
+                note_factory.addCommentLine(comment)
 
-            questionFactory.addQuestionLine(group_lines[0])
+            note_factory.addQuestionLine(group_lines[0])
             for field in group_lines[1:]:
-                questionFactory.addAnswerLine(field)
+                note_factory.addAnswerLine(field)
 
-            newQuestion = questionFactory.buildQuestion()
+            newQuestion = note_factory.buildQuestion()
             deck.addQuestion(newQuestion)
 
         elif type == "comment":
-            sectionComments = []
+            section_comments = []
             for line in group_lines:
-                sectionComments.append(line)
+                section_comments.append(line)
 
     return deck
 

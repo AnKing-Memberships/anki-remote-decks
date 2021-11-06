@@ -1,8 +1,8 @@
-from .AnkiQuestion import AnkiQuestion
+from .AnkiNote import AnkiNote
 from ..org_parser import DeckBuilderUtils
 from ..org_parser import ParserUtils
 
-class AnkiQuestionFactory:
+class AnkiNoteFactory:
 
     utils = DeckBuilderUtils.DeckBuilderUtils()
 
@@ -62,7 +62,7 @@ class AnkiQuestionFactory:
     # Should return an Question object
     def buildQuestion(self):
 
-        newQuestion = AnkiQuestion()
+        newQuestion = AnkiNote()
         self.questionsCreated += 1
 
         # Add Question

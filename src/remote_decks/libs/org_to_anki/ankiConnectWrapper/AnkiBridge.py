@@ -226,10 +226,10 @@ class AnkiBridge:
         return m
 
     ### Methods used by remote-decks only ###
-    def deleteNotes(self, noteId):
+    def deleteNotes(self, noteIds):
         self.startEditing()
         try:
-            aqt.mw.col.remNotes([noteId])
+            aqt.mw.col.remove_notes(noteIds)
         finally:
             self.stopEditing()
 

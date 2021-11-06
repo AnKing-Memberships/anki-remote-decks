@@ -1,6 +1,6 @@
 
 from ..ankiClasses.AnkiDeck import AnkiDeck
-from ..ankiClasses.AnkiQuestionFactory import AnkiQuestionFactory
+from ..ankiClasses.AnkiQuestionFactory import AnkiNoteFactory
 from . import DeckBuilderUtils, ParserUtils
 
 
@@ -166,7 +166,7 @@ class DeckBuilder:
 
         # Answer are indented by a single or more Asterisks
         numberOfQuestionAsterisk = questionLine
-        questionFactory = AnkiQuestionFactory(deckName, filePath)
+        questionFactory = AnkiNoteFactory(deckName, filePath)
 
         # Add metadata for section to new Question
         for key in sectionMetadata:  # This is a bit lazy

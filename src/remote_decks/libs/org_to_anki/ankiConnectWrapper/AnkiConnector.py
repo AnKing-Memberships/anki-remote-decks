@@ -84,7 +84,7 @@ class AnkiConnector:
 
         notes = []
         for i in ankiQuestions:
-            notes.append(self.AnkiNoteBuilder.buildNote(i))
+            notes.append(self.AnkiNoteBuilder.built_note(i))
 
         finalNotes = {}
         finalNotes["notes"] = notes

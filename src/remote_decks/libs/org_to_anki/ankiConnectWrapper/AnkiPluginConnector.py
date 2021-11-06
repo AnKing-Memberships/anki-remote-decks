@@ -95,7 +95,7 @@ class AnkiPluginConnector:
 
         notes = []
         for i in ankiQuestions:
-            notes.append(self.AnkiNoteBuilder.buildNote(i))
+            notes.append(self.AnkiNoteBuilder.built_note(i))
 
         finalNotes = {}
         finalNotes["notes"] = notes
@@ -105,7 +105,7 @@ class AnkiPluginConnector:
 
         allNotes = []
         for i in ankiQuestions:
-            allNotes.append(self.AnkiNoteBuilder.buildNote(i))
+            allNotes.append(self.AnkiNoteBuilder.built_note(i))
 
         return allNotes
 
@@ -123,7 +123,6 @@ class AnkiPluginConnector:
 
     # Delete notes
     def deleteNotes(self, noteIds):
-        # TODO ensure that noteID is an array
         self.AnkiBridge.deleteNotes(noteIds)
 
     # Update Note fields

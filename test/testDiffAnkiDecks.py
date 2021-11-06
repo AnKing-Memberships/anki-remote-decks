@@ -1,6 +1,6 @@
 
 from src.remote_decks.libs.org_to_anki.org_parser.parseData import parse
-from src.remote_decks.libs.org_to_anki.ankiClasses.AnkiQuestion import AnkiQuestion
+from src.remote_decks.libs.org_to_anki.ankiClasses.AnkiQuestion import AnkiNote
 from src.remote_decks.diffAnkiDecks import diffAnkiDecks
 from src.remote_decks.diffAnkiDecks import _determineKeyField
 
@@ -24,7 +24,7 @@ def testNoteAdded():
     ankiDeck = parse("test/testData/basic.org")
 
     # Third note added to deck
-    newQuestion = AnkiQuestion("Third Question")
+    newQuestion = AnkiNote("Third Question")
     newQuestion.addAnswer("Third answer")
     ankiDeck.addQuestion(newQuestion)
 

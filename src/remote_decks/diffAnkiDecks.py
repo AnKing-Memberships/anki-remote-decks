@@ -1,78 +1,68 @@
 
-try:
-    from aqt.utils import showInfo
-except:
-    pass
+from typing import Dict, List, Tuple
+
+from anki.notes import Note
 from aqt import mw
 
+from .libs.org_to_anki.ankiClasses import AnkiDeck
 from .libs.org_to_anki.ankiConnectWrapper.AnkiNoteBuilder import \
     AnkiNoteBuilder
 
 
-def diffAnkiDecks(orgAnkiDeck, ankiBaseDeck):
+def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
 
-    if not isinstance(ankiBaseDeck, dict):
-        raise Exception("AnkiBaseDeck, 2nd param, is not dict")
+    # the id is a tuple of the form: (first field content, modelName)
+    note_by_id: Dict[Tuple[str, str], Note] = dict()
+    for remote_note in local_notes:
+        key = _get_key(remote_note)
+        note_by_id[(key, remote_note["modelName"])] = remote_note
 
-    # Sort 
-    storedNotes = {}
-    potentialKeys = set()
-    for question in ankiBaseDeck.get("result"):
-        keyField = _determineKeyField(question)
-        potentialKeys.add(keyField)
-        key = question.get("fields").get(keyField).get("value")
-        storedNotes[key] = question
+    def local_note_for_remote_note(remote_note):
+        built_note = built_note_for_remote_note(remote_note)
+        key = _get_key(built_note)
+        result = note_by_id.get((key, built_note["modelName"]), None)
+        return result
 
-    # Determine diff
-    newQuestions = []
-    questionsUpdated = []
-    removedQuestions = []
+    def built_note_for_remote_note(remote_note):
+        note_builder = AnkiNoteBuilder()
+        result = note_builder.built_note(remote_note)
+        return result
 
-    # Get note Builder
-    noteBuilder = AnkiNoteBuilder()
-    for question in orgAnkiDeck.getQuestions():
-        builtQuestion = noteBuilder.buildNote(question)
-        # TODO in future maybe have to different key fields
-        keyField = _determineKeyField(builtQuestion)
-        key = builtQuestion.get("fields").get(keyField)
+    new_notes = []
+    udpated_notes = []
+    removed_notes = []
+    for remote_note in remote_deck.getQuestions():
+        local_note = local_note_for_remote_note(remote_note)
 
-        # Check if question exist
-        savedQuestion = storedNotes.get(key, None)
-        questionAdded = False
-        if savedQuestion == None:
-            noteId = -1
-            newQuestions.append({"question":question, "noteId":noteId})
-            questionAdded = True
-
-        if (questionAdded):
-            pass
+        if local_note is None:
+            # new note
+            new_notes.append({"question": remote_note, "noteId": -1})
         else:
-            # Updated question
-            for fields in savedQuestion.get("fields").keys():
-                if not (savedQuestion.get("fields").get(fields).get("value") == builtQuestion.get("fields").get(fields)):
-                    noteId = savedQuestion["noteId"]
-                    questionsUpdated.append({"question":question, "noteId":noteId}) 
+            # updated note
+            built_note = built_note_for_remote_note(remote_note)
+            for fields in local_note.get("fields").keys():
+                if not (local_note.get("fields").get(fields).get("value") == built_note.get("fields").get(fields)):
+                    udpated_notes.append({"question": remote_note, "noteId": local_note["noteId"]})
 
-    # Find question in Anki that have been deleted from remote source
-    # TODO needs a method to determine what the primary field should be for a question
-    remoteQuestionKeys = set()
-    for question in orgAnkiDeck.getQuestions():
-        builtQuestion = noteBuilder.buildNote(question)
-        remoteQuestionKeys.add(builtQuestion["fields"].get("Front", None))
-        remoteQuestionKeys.add(builtQuestion["fields"].get("Text", None))
+    remote_note_ids = set()
+    for remote_note in remote_deck.getQuestions():
+        built_note = built_note_for_remote_note(remote_note)
+        remote_note_ids.add((_get_key(built_note), built_note["modelName"]))
 
-    for note in storedNotes:
-        storedNote = storedNotes.get(note)
-        keyField = _determineKeyField(storedNote)
-        key = storedNote.get("fields").get(keyField)["value"]
+    for id_, local_note in note_by_id.items():
+        if id_ not in remote_note_ids:
+            noteId = local_note["noteId"]
+            removed_notes.append({"question": local_note, "noteId": noteId})
 
-        if key not in remoteQuestionKeys:
-            noteId = storedNote["noteId"]
-            removedQuestions.append({"question":storedNote, "noteId":noteId})
-
-    return {"newQuestions": newQuestions, "questionsUpdated": questionsUpdated, "removedQuestions": removedQuestions}
+    return {"newQuestions": new_notes, "questionsUpdated": udpated_notes, "removedQuestions": removed_notes}
 
 
-
-def _determineKeyField(jsonDeck):
-    return mw.col.models.by_name(jsonDeck.get("modelName"))["flds"][0]["name"]
+def _get_key(note):
+    # works for anki.notes.Note and for org_to_anki's AnkiNote
+    key_field_name = mw.col.models.by_name(note["modelName"])[
+        "flds"][0]["name"]
+    temp = note["fields"][key_field_name]
+    if isinstance(temp, str):
+        return temp
+    else:
+        return temp["value"]
