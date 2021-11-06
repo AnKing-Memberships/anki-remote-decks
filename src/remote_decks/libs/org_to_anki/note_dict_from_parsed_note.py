@@ -2,7 +2,7 @@ from typing import Dict
 
 from aqt import mw
 
-from .ankiClasses.ParsedNote import ParsedNote
+from .parse_classes.ParsedNote import ParsedNote
 
 
 def note_dict_from_parsed_note(parsed_note: ParsedNote, root_deck=None) -> Dict:

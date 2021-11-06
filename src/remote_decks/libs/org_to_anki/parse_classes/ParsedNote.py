@@ -1,4 +1,4 @@
-from .AnkiQuestionMedia import AnkiQuestionMedia
+from .ParsedNoteMedia import ParsedNoteMedia
 from .NamedNoteField import NamedNoteField
 
 
@@ -27,10 +27,10 @@ class ParsedNote:
         return self.question
 
     def addImage(self, fileName, fileData):
-        self._media.append(AnkiQuestionMedia("image", fileName, fileData))
+        self._media.append(ParsedNoteMedia("image", fileName, fileData))
 
     def addLazyImage(self, fileName, url, imageFunc):
-        self._media.append(AnkiQuestionMedia(
+        self._media.append(ParsedNoteMedia(
             "image", fileName, data=None, imageUrl=url, imageFunction=imageFunc))
 
     def hasMedia(self):

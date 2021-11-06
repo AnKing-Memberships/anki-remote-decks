@@ -1,11 +1,11 @@
 
-from .ankiClasses.AnkiDeck import AnkiDeck
-from .ankiClasses.ParsedNoteFactory import ParsedNoteFactory
+from .parse_classes.ParsedDeck import ParsedDeck
+from .parse_classes.ParsedNoteFactory import ParsedNoteFactory
 
 
 def build_deck_from_org_lines(lines, deckName):
 
-    deck = AnkiDeck(deckName)
+    deck = ParsedDeck(deckName)
     note_factory = ParsedNoteFactory(deckName)
 
     groups = grouped_lines(lines)

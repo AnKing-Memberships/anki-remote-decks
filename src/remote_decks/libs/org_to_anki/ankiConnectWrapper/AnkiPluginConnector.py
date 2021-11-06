@@ -1,11 +1,11 @@
 import base64
 
+import aqt
+
 from .. import config
-from ..ankiClasses.AnkiDeck import AnkiDeck
+from ..parse_classes.ParsedDeck import ParsedDeck
 from ..note_dict_from_parsed_note import note_dict_from_parsed_note
 from .AnkiBridge import AnkiBridge
-
-import aqt
 
 
 class AnkiPluginConnector:
@@ -14,7 +14,7 @@ class AnkiPluginConnector:
         self.AnkiBridge = AnkiBridge()
         self.root_deck = defaultDeck
 
-    def create_new_deck(self, deck: AnkiDeck):
+    def create_new_deck(self, deck: ParsedDeck):
 
         self._buildNewDecksAsRequired(deck.getDeckNames())
 

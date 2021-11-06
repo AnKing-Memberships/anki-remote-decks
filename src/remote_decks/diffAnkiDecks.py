@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple
 from anki.notes import Note
 from aqt import mw
 
-from .libs.org_to_anki.ankiClasses import AnkiDeck
+from .libs.org_to_anki.parse_classes import AnkiDeck
 from .libs.org_to_anki.note_dict_from_parsed_note import note_dict_from_parsed_note
 
 

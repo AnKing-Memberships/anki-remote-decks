@@ -1,4 +1,4 @@
-class AnkiQuestionMedia:
+class ParsedNoteMedia:
 
     def __init__(self, mediaType, fileName, data, imageUrl=None, imageFunction=None):
         self.mediaType = mediaType

@@ -1,10 +1,10 @@
 
 from typing import List
 
-from ..ankiClasses.ParsedNote import ParsedNote
+from ..parse_classes.ParsedNote import ParsedNote
 
 
-class AnkiDeck:
+class ParsedDeck:
 
     # Basic file => represented in a single deck
     # MultiDeck file => File will have multiple subdecks of general topic

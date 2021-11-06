@@ -1,6 +1,6 @@
 from .AnkiConnectorUtils import AnkiConnectorUtils
-from ..ankiClasses import AnkiQuestion
-from ..ankiClasses.AnkiDeck import AnkiDeck
+from ..parse_classes import AnkiQuestion
+from ..parse_classes.AnkiDeck import ParsedDeck
 from .AnkiNoteBuilder import AnkiNoteBuilder
 from .. import config
 import base64
