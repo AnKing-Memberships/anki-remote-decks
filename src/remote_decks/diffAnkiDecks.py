@@ -5,7 +5,7 @@ from anki.notes import Note
 from aqt import mw
 
 from .libs.org_to_anki.ankiClasses import AnkiDeck
-from .libs.org_to_anki.build_note import built_note as built_note_
+from .libs.org_to_anki.build_note import build_note
 
 
 def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
@@ -23,7 +23,7 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
         return result
 
     def built_note_for_remote_note(remote_note):
-        result = built_note_(remote_note)
+        result = build_note(remote_note)
         return result
 
     new_notes = []
@@ -37,13 +37,13 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
             new_notes.append((remote_note, -1))
         else:
             # updated note
-            built_note = built_note_for_remote_note(remote_note)
+            build_note = built_note_for_remote_note(remote_note)
             changed = False
             for fields in local_note.get("fields").keys():
-                if not (local_note.get("fields").get(fields).get("value") == built_note.get("fields").get(fields)):
+                if not (local_note.get("fields").get(fields).get("value") == build_note.get("fields").get(fields)):
                     changed = True
                     break
-            if local_note["tags"] != built_note["tags"]:
+            if local_note["tags"] != build_note["tags"]:
                 changed = True
 
             if changed:

@@ -2,13 +2,14 @@ from typing import Dict
 
 from aqt import mw
 
-from . import config
 
-
-def built_note(anki_note) -> Dict:
+def build_note(anki_note, root_deck=None) -> Dict:
 
     assert anki_note.deckName
-    deckName = f"{config.defaultDeck}::{anki_note.deckName}"
+    if root_deck is not None:
+        deckName = f"{root_deck}::{anki_note.deckName}"
+    else:
+        deckName = anki_note.deckName
 
     modelName = anki_note.getParameter("Note type", "Basic")
     note = {"deckName": deckName, "modelName": modelName}

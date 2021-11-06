@@ -5,25 +5,22 @@ from aqt.qt import *
 from aqt.utils import showInfo
 
 from .diffAnkiDecks import diffAnkiDecks
-from .libs.org_to_anki.build_note import built_note
+from .libs.org_to_anki.build_note import build_note
 from .libs.org_to_anki.utils import getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
 
-remoteDefaultDeck = "Remote Decks"
+REMOTE_DECK_NAME = "Remote Decks"
 
 
 def syncDecks():
 
     # Get all remote decks from config
-    ankiBridge = getAnkiPluginConnector(remoteDefaultDeck)
-
-    baseDeck = ankiBridge.defaultDeck
-    deckJoiner = "::"
+    ankiBridge = getAnkiPluginConnector(REMOTE_DECK_NAME)
 
     # Get config data
     remote_data = ankiBridge.getConfig()
 
-    # To by synced later
+    # To be synced later
     all_deck_media = []
 
     for deckKey in remote_data["remote-decks"].keys():
@@ -43,7 +40,7 @@ def syncDecks():
             remote_deck.deckName = deck_name
 
             # Get current deck
-            deck_name = baseDeck + deckJoiner + deck_name
+            deck_name = f"{REMOTE_DECK_NAME}::{deck_name}"
             local_deck = ankiBridge.getDeckNotes(deck_name)
 
             # Local deck has no cards
@@ -71,7 +68,7 @@ def syncDecks():
 
 def _sync_new_data(deck_diff):
 
-    ankiBridge = getAnkiPluginConnector(remoteDefaultDeck)
+    ankiBridge = getAnkiPluginConnector(REMOTE_DECK_NAME)
 
     new_notes = deck_diff["new_notes"]
     updated_notes = deck_diff["updated_notes"]
@@ -92,7 +89,7 @@ def _sync_new_data(deck_diff):
     # Update existing notes
     for note_info in updated_notes:
         note, note_id = note_info
-        built_note_ = built_note(note)
+        built_note_ = build_note(note)
         _update_note(note_id, built_note_)
 
     # Remove notes
@@ -124,7 +121,7 @@ def addNewDeck():
         return
 
     # Get data and build deck
-    ankiBridge = getAnkiPluginConnector(remoteDefaultDeck)
+    ankiBridge = getAnkiPluginConnector()
 
     deck = getRemoteDeck(url)
     deckName = deck.deckName
@@ -148,7 +145,7 @@ def addNewDeck():
 def removeRemoteDeck():
 
     # Get current remote decks
-    ankiBridge = getAnkiPluginConnector(remoteDefaultDeck)
+    ankiBridge = getAnkiPluginConnector()
 
     config = ankiBridge.getConfig()
     remoteDecks = config["remote-decks"]

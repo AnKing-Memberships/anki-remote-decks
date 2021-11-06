@@ -1,7 +1,7 @@
 import base64
 
 from .. import config
-from ..build_note import built_note
+from ..build_note import build_note
 from .AnkiBridge import AnkiBridge
 from .AnkiNoteBuilder import AnkiNoteBuilder
 
@@ -17,15 +17,14 @@ class AnkiPluginConnector:
 
     def __init__(self, defaultDeck=config.defaultDeck):
         self.AnkiBridge = AnkiBridge()
-        self.defaultDeck = defaultDeck
-        self.oldDefaulDeck = defaultDeck
-        self.AnkiNoteBuilder = AnkiNoteBuilder(self.defaultDeck)
+        self.root_deck = defaultDeck
+        self.AnkiNoteBuilder = AnkiNoteBuilder(self.root_deck)
 
     def addCardsToEmptyDeck(self, deck):
 
         self._buildNewDecksAsRequired(deck.getDeckNames())
 
-        # Build new questions
+        # Build new notes
         notes = self.buildIndividualAnkiNotes(deck.getQuestions())
         media = self.prepareMedia(deck.getMedia())
 
@@ -34,8 +33,8 @@ class AnkiPluginConnector:
             self.AnkiBridge.addNote(note)
 
         # Add media
-        for i in media:
-            self.AnkiBridge.storeMediaFile(i.get("fileName"), i.get("data"))
+        for media_info in media:
+            self.AnkiBridge.storeMediaFile(media_info.get("fileName"), media_info.get("data"))
 
     def prepareMedia(self, ankiMedia):  # ([])
 
@@ -63,10 +62,10 @@ class AnkiPluginConnector:
             self.AnkiBridge.createDeck(deck)
 
     def _getFullDeckPath(self, deckName):  # (str)
-        if self.defaultDeck == None:
+        if self.root_deck == None:
             return str(deckName)
         else:
-            return str(self.defaultDeck + "::" + deckName)
+            return str(self.root_deck + "::" + deckName)
 
     def buildAnkiNotes(self, ankiQuestions):  # [AnkiQuestion]
 
@@ -81,7 +80,7 @@ class AnkiPluginConnector:
     def buildIndividualAnkiNotes(self, anki_notes):
         allNotes = []
         for note in anki_notes:
-            allNotes.append(built_note(note))
+            allNotes.append(build_note(note, self.root_deck))
 
         return allNotes
 
