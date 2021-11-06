@@ -17,9 +17,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 try:
+    import unicodedata
+    import os
+    import hashlib
+    import base64
     import anki
     import aqt
-    from anki.sync import AnkiRequestsClient
     from aqt.utils import showInfo
 except:
     anki = {}
@@ -28,18 +31,15 @@ except:
 
 URL_TIMEOUT = 10
 
-import base64
-import hashlib
-import os
-import unicodedata
 
 # This class imports anki and is used to interact with the database
+
 class AnkiBridge:
 
     def __init__(self):
 
         self.x = "test"
-        
+
     ### Core methods ###
     def addNote(self, note):
         ankiNote = self.createNote(note)
@@ -61,11 +61,13 @@ class AnkiBridge:
                 if not skip:
                     for field in audio['fields']:
                         if field in ankiNote:
-                            ankiNote[field] += u'[sound:{}]'.format(audio['filename'])
+                            ankiNote[field] += u'[sound:{}]'.format(
+                                audio['filename'])
 
                     self.media().writeData(audio['filename'], data)
             except Exception as e:
-                errorMessage = str(e).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                errorMessage = str(e).replace("&", "&amp;").replace(
+                    "<", "&lt;").replace(">", "&gt;")
                 for field in audio['fields']:
                     if field in ankiNote:
                         ankiNote[field] += errorMessage
@@ -104,7 +106,6 @@ class AnkiBridge:
     def startEditing(self):
         self.window().requireReset()
 
-
     def stopEditing(self):
         if self.collection() is not None:
             self.window().maybeReset()
@@ -131,11 +132,13 @@ class AnkiBridge:
         try:
             (code, contents) = self.download(url)
         except Exception as e:
-            raise Exception('{} download failed with error {}'.format(url, str(e)))
+            raise Exception(
+                '{} download failed with error {}'.format(url, str(e)))
         if code == 200:
             return contents
         else:
-            raise Exception('{} download failed with return code {}'.format(url, code))
+            raise Exception(
+                '{} download failed with return code {}'.format(url, code))
 
     def media(self):
         media = self.collection().media
@@ -150,7 +153,8 @@ class AnkiBridge:
 
         model = collection.models.byName(note['modelName'])
         if model is None:
-            raise Exception('model was not found: {}'.format(note['modelName']))
+            raise Exception(
+                'model was not found: {}'.format(note['modelName']))
 
         deck = collection.decks.byName(note['deckName'])
         if deck is None:
@@ -166,33 +170,36 @@ class AnkiBridge:
 
         allowDuplicate = False
         if 'options' in note:
-          if 'allowDuplicate' in note['options']:
-            allowDuplicate = note['options']['allowDuplicate']
-            if type(allowDuplicate) is not bool:
-              raise Exception('option parameter \'allowDuplicate\' must be boolean')
+            if 'allowDuplicate' in note['options']:
+                allowDuplicate = note['options']['allowDuplicate']
+                if type(allowDuplicate) is not bool:
+                    raise Exception(
+                        'option parameter \'allowDuplicate\' must be boolean')
 
         duplicateOrEmpty = ankiNote.dupeOrEmpty()
         if duplicateOrEmpty == 1:
             showInfo("Warning. The following note could note be created:\nPossible reasons include strangely configured local note models\n{}".format(note))
         elif duplicateOrEmpty == 2:
-          if not allowDuplicate:
-              return None 
+            if not allowDuplicate:
+                return None
             # showInfo("Warning. The following note could note be created because it is a duplicate:\n{}".format(note))
-          else:
-            return ankiNote
+            else:
+                return ankiNote
         elif duplicateOrEmpty == False:
             return ankiNote
         else:
-            showInfo("Warning. The following note could note be created. Reason unknown:\n{}".format(note))
+            showInfo(
+                "Warning. The following note could note be created. Reason unknown:\n{}".format(note))
 
-    # Check if models are present 
+    # Check if models are present
     def modelNames(self):
         return self.collection().models.allNames()
 
-    def createModel(self, modelName, inOrderFields, cardTemplates, css = None):
+    def createModel(self, modelName, inOrderFields, cardTemplates, css=None):
         # https://github.com/dae/anki/blob/b06b70f7214fb1f2ce33ba06d2b095384b81f874/anki/stdmodels.py
         if (len(inOrderFields) == 0):
-            raise Exception('Must provide at least one field for inOrderFields')
+            raise Exception(
+                'Must provide at least one field for inOrderFields')
         if (len(cardTemplates) == 0):
             raise Exception('Must provide at least one card for cardTemplates')
         if (modelName in self.collection().models.allNames()):
@@ -248,8 +255,8 @@ class AnkiBridge:
 
         ankiNote.flush()
 
-
     # Core current method
+
     def getDeckNotes(self, deckName):
 
         cardIds = self._getAnkiCardIdsForDeck(deckName)
@@ -260,7 +267,6 @@ class AnkiBridge:
         return cards
 
     def _getAnkiCardIdsForDeck(self, deckName):
-
 
         # TODO should check if deck name is in the correct format
 
@@ -273,7 +279,6 @@ class AnkiBridge:
         ids = self.collection().findNotes(query)
 
         return ids
-
 
     def _getCardsFromIds(self, AnkiCardsIds):
 
@@ -291,14 +296,14 @@ class AnkiBridge:
 
             result.append({
                 'noteId': note.id,
-                'tags' : note.tags,
+                'tags': note.tags,
                 'fields': fields,
                 'modelName': model['name'],
                 'cards': self.collection().db.list('select id from cards where nid = ? order by ord', note.id)
             })
 
         return result
-    
+
     def checkForMediaFile(self, filename):
         filename = os.path.basename(filename)
         filename = unicodedata.normalize('NFC', filename)
