@@ -1,6 +1,5 @@
 from .AnkiQuestionMedia import AnkiQuestionMedia
 from .NamedNoteField import NamedNoteField
-from ..converters.codeHighlighter import highLightCode
 
 class AnkiNote:
 

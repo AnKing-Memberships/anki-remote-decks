@@ -6,7 +6,6 @@ from .ankiClasses.AnkiNoteFactory import AnkiNoteFactory
 def build_new_deck(lines, deckName):
 
     deck = AnkiDeck(deckName)
-
     note_factory = AnkiNoteFactory(deckName)
 
     groups = grouped_lines(lines)

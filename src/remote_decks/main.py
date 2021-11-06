@@ -11,7 +11,8 @@ except:
 import sys
 
 from .diffAnkiDecks import diffAnkiDecks
-from .libs.org_to_anki.utils import getAnkiNoteBuilder, getAnkiPluginConnector
+from .libs.org_to_anki.build_note import built_note
+from .libs.org_to_anki.utils import getAnkiPluginConnector
 from .parseRemoteDeck import getRemoteDeck
 
 remoteDefaultDeck = "Remote Decks"
@@ -26,47 +27,47 @@ def syncDecks():
     deckJoiner = "::"
 
     # Get config data
-    remoteData = ankiBridge.getConfig()
+    remote_data = ankiBridge.getConfig()
 
     # To by synced later
-    allDeckMedia = []
+    all_deck_media = []
 
-    for deckKey in remoteData["remote-decks"].keys():
+    for deckKey in remote_data["remote-decks"].keys():
         try:
-            currentRemoteInfo = remoteData["remote-decks"][deckKey]
+            current_remote_info = remote_data["remote-decks"][deckKey]
 
             # Get Remote deck
-            deckName = currentRemoteInfo["deckName"]
-            remoteDeck = getRemoteDeck(currentRemoteInfo["url"])
+            deck_name = current_remote_info["deckName"]
+            remote_deck = getRemoteDeck(current_remote_info["url"])
 
             # Get media and add to collection
-            deckMedia = remoteDeck.getMedia()
-            if deckMedia != None:
-                allDeckMedia.extend(deckMedia)
+            deck_media = remote_deck.getMedia()
+            if deck_media != None:
+                all_deck_media.extend(deck_media)
 
             # Update deckname to one specificed in stored data
-            remoteDeck.deckName = deckName
+            remote_deck.deckName = deck_name
 
             # Get current deck
-            deckName = baseDeck + deckJoiner + deckName
-            local_deck = ankiBridge.getDeckNotes(deckName)
+            deck_name = baseDeck + deckJoiner + deck_name
+            local_deck = ankiBridge.getDeckNotes(deck_name)
 
             # Local deck has no cards
             if local_deck == []:
-                ankiBridge.addCardsToEmptyDeck(remoteDeck)
-                showInfo("Adding cards to empty deck: {}".format(deckName))
+                ankiBridge.addCardsToEmptyDeck(remote_deck)
+                showInfo("Adding cards to empty deck: {}".format(deck_name))
             else:
                 # Diff decks and sync
-                deckDiff = diffAnkiDecks(remoteDeck, local_deck)
-                _syncNewData(deckDiff)
+                deckDiff = diffAnkiDecks(remote_deck, local_deck)
+                _sync_new_data(deckDiff)
         except Exception as e:
             deckMessage = "\nThe following deck failed to sync: {}".format(
-                deckName)
+                deck_name)
             raise type(e)(
                 str(e) + deckMessage).with_traceback(sys.exc_info()[2])
 
     # Sync missing media data
-    formattedMedia = ankiBridge.prepareMedia(allDeckMedia)
+    formattedMedia = ankiBridge.prepareMedia(all_deck_media)
 
     # Add Media
     # TODO This need to be refactored back into org_to_anki
@@ -74,39 +75,36 @@ def syncDecks():
         ankiBridge.AnkiBridge.storeMediaFile(i.get("fileName"), i.get("data"))
 
 
-def _syncNewData(deckDiff):
+def _sync_new_data(deck_diff):
 
     ankiBridge = getAnkiPluginConnector(remoteDefaultDeck)
-    ankiNoteBuilder = getAnkiNoteBuilder()
 
-    new_questions = deckDiff["newQuestions"]
-    updated_questions = deckDiff["questionsUpdated"]
-    removed_questions = deckDiff["removedQuestions"]
+    new_notes = deck_diff["new_notes"]
+    updated_notes = deck_diff["updated_notes"]
+    removed_notes = deck_diff["removed_notes"]
 
-    # Add new question
+    # Add new notes
     duplicateQuestion = 0
-    for q in new_questions:
-        question = q["question"]
+    for note_info in new_notes:
+        note, _ = note_info
         try:
-            ankiBridge.addNote(question)
+            ankiBridge.addNote(note)
         except Exception as e:
             if e.args[0] == "cannot create note because it is a duplicate":
                 duplicateQuestion += 1
             else:
                 raise e
 
-    # Update existing questions
-    for q in updated_questions:
-        question = q["question"]
-        noteId = q["noteId"]
+    # Update existing notes
+    for note_info in updated_notes:
+        note, note_id = note_info
+        built_note_ = built_note(note)
+        _update_note(note_id, built_note_)
 
-        built_note = ankiNoteBuilder.built_note(question)
-        _update_note(noteId, built_note)
-
-    # Remove questions
-    for q in removed_questions:
-        noteId = q["noteId"]
-        ankiBridge.deleteNotes([noteId])
+    # Remove notes
+    for note_info in removed_notes:
+        note, note_id = note_info
+        ankiBridge.deleteNotes([note_id])
 
 
 def _update_note(noteId, built_note):

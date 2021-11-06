@@ -1,14 +1,10 @@
-try:
-    from aqt import mw
-    from aqt.utils import showInfo
-    from aqt.qt import *
-    from .remote_decks.main import addNewDeck
-    from .remote_decks.main import syncDecks as _syncDecks
-    from .remote_decks.main import removeRemoteDeck as removeDecks
-    from .remote_decks.libs.org_to_anki.utils import getAnkiPluginConnector as getConnector
-except:
-    QAction = None
-    mw = None
+from aqt import mw
+from aqt.utils import showInfo
+from aqt.qt import *
+from .remote_decks.main import addNewDeck
+from .remote_decks.main import syncDecks as _syncDecks
+from .remote_decks.main import removeRemoteDeck as removeDecks
+from .remote_decks.libs.org_to_anki.utils import getAnkiPluginConnector as getConnector
     
 errorTemplate = """
 Hey there! It seems an error has occurred while running.

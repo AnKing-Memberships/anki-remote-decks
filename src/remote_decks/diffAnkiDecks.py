@@ -5,8 +5,7 @@ from anki.notes import Note
 from aqt import mw
 
 from .libs.org_to_anki.ankiClasses import AnkiDeck
-from .libs.org_to_anki.ankiConnectWrapper.AnkiNoteBuilder import \
-    AnkiNoteBuilder
+from .libs.org_to_anki.build_note import built_note as built_note_
 
 
 def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
@@ -24,8 +23,7 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
         return result
 
     def built_note_for_remote_note(remote_note):
-        note_builder = AnkiNoteBuilder()
-        result = note_builder.built_note(remote_note)
+        result = built_note_(remote_note)
         return result
 
     new_notes = []
@@ -36,7 +34,7 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
 
         if local_note is None:
             # new note
-            new_notes.append({"question": remote_note, "noteId": -1})
+            new_notes.append((remote_note, -1))
         else:
             # updated note
             built_note = built_note_for_remote_note(remote_note)
@@ -47,9 +45,9 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
                     break
             if local_note["tags"] != built_note["tags"]:
                 changed = True
-            
+
             if changed:
-                udpated_notes.append({"question": remote_note, "noteId": local_note["noteId"]})
+                udpated_notes.append((remote_note, local_note["noteId"]))
 
     remote_note_ids = set()
     for remote_note in remote_deck.getQuestions():
@@ -59,9 +57,9 @@ def diffAnkiDecks(remote_deck: AnkiDeck, local_notes: List[Note]):
     for id_, local_note in note_by_id.items():
         if id_ not in remote_note_ids:
             noteId = local_note["noteId"]
-            removed_notes.append({"question": local_note, "noteId": noteId})
+            removed_notes.append(("", noteId))
 
-    return {"newQuestions": new_notes, "questionsUpdated": udpated_notes, "removedQuestions": removed_notes}
+    return {"new_notes": new_notes, "updated_notes": udpated_notes, "removed_notes": removed_notes}
 
 
 def _get_key(note):
