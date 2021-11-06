@@ -7,7 +7,7 @@ from aqt.utils import showInfo
 from .deck_diff import deck_diff
 from .libs.org_to_anki.note_dict_from_parsed_note import \
     note_dict_from_parsed_note
-from .parseRemoteDeck import getRemoteDeck
+from .parse_remote_deck import getRemoteDeck
 from .libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import AnkiPluginConnector
 
 # name of the deck that is the root of all remote decks
