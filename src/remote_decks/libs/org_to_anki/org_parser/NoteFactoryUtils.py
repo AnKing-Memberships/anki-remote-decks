@@ -6,7 +6,6 @@ from .ParserUtils import getImageFromUrl
 
 
 class NoteFactoryUtils:
-
     def __init__(self):
 
         self.lazyLoadImages = config.lazyLoadImages
@@ -23,8 +22,7 @@ class NoteFactoryUtils:
                 note.addLazyImage(image_name, url, getImageFromUrl)
 
                 image_html = f'<img src="{image_name}" height={height} width={width} />'
-                result = re.sub("\[image=[^]]+?\]",
-                                image_html, result, count=1)
+                result = re.sub("\[image=[^]]+?\]", image_html, result, count=1)
 
         return result
 
@@ -37,29 +35,7 @@ class NoteFactoryUtils:
             return line
 
     def countAsterisk(self, line):  # (str)
-        return line.split(' ')[0].count('*', 0, 10)
-
-    def generateSublist(self, subItems):  # ([str])
-
-        formatedList = []
-
-        indentationLevel = self.countAsterisk(subItems[0])
-        for item in subItems:
-            if self.countAsterisk(item) == indentationLevel:
-                formatedList.append(item)
-            elif self.countAsterisk(item) > indentationLevel and isinstance(formatedList[-1], list):
-                formatedList[-1].append(item)
-            else:
-                formatedList.append([item])
-
-        cleaned = []
-        for i in formatedList:
-            if isinstance(i, list):
-                cleaned.append(self.generateSublist(i))
-            else:
-                cleaned.append(self.removeAsterisk(i))
-
-        return cleaned
+        return line.split(" ")[0].count("*", 0, 10)
 
     def formatLine(self, line):  # (str)
 
