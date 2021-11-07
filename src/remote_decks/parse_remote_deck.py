@@ -163,9 +163,17 @@ def _generateOrgListFromHtmlPage(cell_content):
                     img.parent.insert_after(image_text)
                     _clean_up(img)
 
-                cell_html = cell_content.decode_contents()
-                cell_html = substitute_cloze_aliases(cell_html)
-                rows.append(cell_html)
+                if (
+                    not (chs := cell_content.contents) or
+                    (len(chs) == 1 and chs[0].name == "p" and not chs[0].contents) or
+                    (all(isinstance(x, str) and x.strip() == "" for x in chs))
+                ):
+                    # append empty row if the table row is empty apart from whitespace
+                    rows.append("")
+                else:
+                    cell_html = cell_content.decode_contents()
+                    cell_html = substitute_cloze_aliases(cell_html)
+                    rows.append(cell_html)
 
             orgFormattedFile.append(f"* {rows[0]}")
             for x in rows[1:]:
