@@ -1,8 +1,8 @@
-from .ParserUtils import getImageFromUrl
-from .. import config
-
-import re
 import hashlib
+import re
+
+from .. import config
+from .ParserUtils import getImageFromUrl
 
 
 class NoteFactoryUtils:
@@ -19,7 +19,7 @@ class NoteFactoryUtils:
             url_sections = re.findall(image_re, line)
             for url_section in url_sections:
                 url, height, width = url_section
-                image_name = "img_" + hashlib.md5(url.encode()).hexdigest()
+                image_name = f"img_{hashlib.md5(url.encode()).hexdigest()}"
                 note.addLazyImage(image_name, url, getImageFromUrl)
 
                 image_html = f'<img src="{image_name}" height={height} width={width} />'
