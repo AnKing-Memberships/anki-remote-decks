@@ -39,8 +39,8 @@ URL_TIMEOUT = 10
 
 # This class imports anki and is used to interact with the database
 
-class AnkiBridge:
 
+class AnkiBridge:
     def __init__(self):
 
         self.x = "test"
@@ -51,11 +51,11 @@ class AnkiBridge:
         if note == None:
             return
 
-        audio = note_dict.get('audio')
-        if audio is not None and len(audio['fields']) > 0:
+        audio = note_dict.get("audio")
+        if audio is not None and len(audio["fields"]) > 0:
             try:
-                data = self.download(audio['url'])
-                skipHash = audio.get('skipHash')
+                data = self.download(audio["url"])
+                skipHash = audio.get("skipHash")
                 if skipHash is None:
                     skip = False
                 else:
@@ -64,16 +64,19 @@ class AnkiBridge:
                     skip = skipHash == m.hexdigest()
 
                 if not skip:
-                    for field in audio['fields']:
+                    for field in audio["fields"]:
                         if field in note:
-                            note[field] += u'[sound:{}]'.format(
-                                audio['filename'])
+                            note[field] += u"[sound:{}]".format(audio["filename"])
 
-                    self.media().writeData(audio['filename'], data)
+                    self.media().writeData(audio["filename"], data)
             except Exception as e:
-                errorMessage = str(e).replace("&", "&amp;").replace(
-                    "<", "&lt;").replace(">", "&gt;")
-                for field in audio['fields']:
+                errorMessage = (
+                    str(e)
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                )
+                for field in audio["fields"]:
                     if field in note:
                         note[field] += errorMessage
 
@@ -118,14 +121,14 @@ class AnkiBridge:
     def decks(self):
         decks = self.collection().decks
         if decks is None:
-            raise Exception('decks are not available')
+            raise Exception("decks are not available")
         else:
             return decks
 
     def collection(self):
         collection = self.window().col
         if collection is None:
-            raise Exception('collection is not available')
+            raise Exception("collection is not available")
         else:
             return collection
 
@@ -137,18 +140,16 @@ class AnkiBridge:
         try:
             (code, contents) = self.download(url)
         except Exception as e:
-            raise Exception(
-                '{} download failed with error {}'.format(url, str(e)))
+            raise Exception("{} download failed with error {}".format(url, str(e)))
         if code == 200:
             return contents
         else:
-            raise Exception(
-                '{} download failed with return code {}'.format(url, code))
+            raise Exception("{} download failed with return code {}".format(url, code))
 
     def media(self):
         media = self.collection().media
         if media is None:
-            raise Exception('media is not available')
+            raise Exception("media is not available")
         else:
             return media
 
@@ -156,34 +157,36 @@ class AnkiBridge:
     def create_note(self, note: Dict) -> Note:
         collection = self.collection()
 
-        model = collection.models.byName(note['modelName'])
+        model = collection.models.byName(note["modelName"])
         if model is None:
-            raise Exception(
-                'model was not found: {}'.format(note['modelName']))
+            raise Exception("model was not found: {}".format(note["modelName"]))
 
-        deck = collection.decks.byName(note['deckName'])
+        deck = collection.decks.byName(note["deckName"])
         if deck is None:
-            raise Exception('deck was not found: {}'.format(note['deckName']))
+            raise Exception("deck was not found: {}".format(note["deckName"]))
 
         ankiNote = anki.notes.Note(collection, model)
-        ankiNote.model()['did'] = deck['id']
-        ankiNote.tags = note['tags']
+        ankiNote.model()["did"] = deck["id"]
+        ankiNote.tags = note["tags"]
 
-        for name, value in note['fields'].items():
+        for name, value in note["fields"].items():
             if name in ankiNote:
                 ankiNote[name] = value
 
         allowDuplicate = False
-        if 'options' in note:
-            if 'allowDuplicate' in note['options']:
-                allowDuplicate = note['options']['allowDuplicate']
+        if "options" in note:
+            if "allowDuplicate" in note["options"]:
+                allowDuplicate = note["options"]["allowDuplicate"]
                 if type(allowDuplicate) is not bool:
-                    raise Exception(
-                        'option parameter \'allowDuplicate\' must be boolean')
+                    raise Exception("option parameter 'allowDuplicate' must be boolean")
 
         duplicateOrEmpty = ankiNote.dupeOrEmpty()
         if duplicateOrEmpty == 1:
-            showInfo("Warning. The following note could note be created:\nPossible reasons include strangely configured local note models\n{}".format(note))
+            showInfo(
+                "Warning. The following note could note be created:\nPossible reasons include strangely configured local note models\n{}".format(
+                    note
+                )
+            )
         elif duplicateOrEmpty == 2:
             if not allowDuplicate:
                 return None
@@ -194,7 +197,10 @@ class AnkiBridge:
             return ankiNote
         else:
             showInfo(
-                "Warning. The following note could note be created. Reason unknown:\n{}".format(note))
+                "Warning. The following note could note be created. Reason unknown:\n{}".format(
+                    note
+                )
+            )
 
     # Check if models are present
     def modelNames(self):
@@ -202,13 +208,12 @@ class AnkiBridge:
 
     def createModel(self, modelName, inOrderFields, cardTemplates, css=None):
         # https://github.com/dae/anki/blob/b06b70f7214fb1f2ce33ba06d2b095384b81f874/anki/stdmodels.py
-        if (len(inOrderFields) == 0):
-            raise Exception(
-                'Must provide at least one field for inOrderFields')
-        if (len(cardTemplates) == 0):
-            raise Exception('Must provide at least one card for cardTemplates')
-        if (modelName in self.collection().models.allNames()):
-            raise Exception('Model name already exists')
+        if len(inOrderFields) == 0:
+            raise Exception("Must provide at least one field for inOrderFields")
+        if len(cardTemplates) == 0:
+            raise Exception("Must provide at least one card for cardTemplates")
+        if modelName in self.collection().models.allNames():
+            raise Exception("Model name already exists")
 
         collection = self.collection()
         mm = collection.models
@@ -222,16 +227,16 @@ class AnkiBridge:
             mm.addField(m, fm)
 
         # Add shared css to model if exists. Use default otherwise
-        if (css is not None):
-            m['css'] = css
+        if css is not None:
+            m["css"] = css
 
         # Generate new card template(s)
         cardCount = 1
         for card in cardTemplates:
-            t = mm.newTemplate('Card ' + str(cardCount))
+            t = mm.newTemplate("Card " + str(cardCount))
             cardCount += 1
-            t['qfmt'] = card['Front']
-            t['afmt'] = card['Back']
+            t["qfmt"] = card["Front"]
+            t["afmt"] = card["Back"]
             mm.addTemplate(m, t)
 
         mm.add(m)
@@ -249,12 +254,12 @@ class AnkiBridge:
 
         # showInfo("{}".format(note['id']))
 
-        ankiNote = aqt.mw.col.getNote(note['id'])
+        ankiNote = aqt.mw.col.getNote(note["id"])
         # showInfo("{}".format(ankiNote))
         if ankiNote is None:
-            raise Exception('note was not found: {}'.format(note['id']))
+            raise Exception("note was not found: {}".format(note["id"]))
 
-        for name, value in note['fields'].items():
+        for name, value in note["fields"].items():
             if name in ankiNote:
                 ankiNote[name] = value
 
@@ -276,7 +281,7 @@ class AnkiBridge:
         # TODO should check if deck name is in the correct format
 
         # Make query to Anki
-        queryTemplate = "deck:\"{}\""
+        queryTemplate = 'deck:"{}"'
 
         query = queryTemplate.format(deckName)
         # showInfo("{}".format(query))
@@ -294,24 +299,28 @@ class AnkiBridge:
             model = note.model()
 
             fields = {}
-            for info in model['flds']:
-                order = info['ord']
-                name = info['name']
-                fields[name] = {'value': note.fields[order], 'order': order}
+            for info in model["flds"]:
+                order = info["ord"]
+                name = info["name"]
+                fields[name] = {"value": note.fields[order], "order": order}
 
-            result.append({
-                'noteId': note.id,
-                'tags': note.tags,
-                'fields': fields,
-                'modelName': model['name'],
-                'cards': self.collection().db.list('select id from cards where nid = ? order by ord', note.id)
-            })
+            result.append(
+                {
+                    "noteId": note.id,
+                    "tags": note.tags,
+                    "fields": fields,
+                    "modelName": model["name"],
+                    "cards": self.collection().db.list(
+                        "select id from cards where nid = ? order by ord", note.id
+                    ),
+                }
+            )
 
         return result
 
     def checkForMediaFile(self, filename):
         filename = os.path.basename(filename)
-        filename = unicodedata.normalize('NFC', filename)
+        filename = unicodedata.normalize("NFC", filename)
         filename = self.media().stripIllegal(filename)
 
         path = os.path.join(self.media().dir(), filename)

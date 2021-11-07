@@ -9,7 +9,6 @@ from .AnkiBridge import AnkiBridge
 
 
 class AnkiPluginConnector:
-
     def __init__(self, rootDeck=config.rootDeck):
         self.AnkiBridge = AnkiBridge()
         self.root_deck = rootDeck
@@ -26,7 +25,8 @@ class AnkiPluginConnector:
         media = self.prepareMedia(deck.getMedia())
         for media_info in media:
             self.AnkiBridge.storeMediaFile(
-                media_info.get("fileName"), media_info.get("data"))
+                media_info.get("fileName"), media_info.get("data")
+            )
 
     def prepareMedia(self, ankiMedia):  # ([])
 
@@ -39,14 +39,21 @@ class AnkiPluginConnector:
                     if i.lazyLoad == True:
                         i.lazyLoadImage()
                     formattedMedia.append(
-                        {"fileName": i.fileName, "data": base64.b64encode(i.data).decode("utf-8")})
+                        {
+                            "fileName": i.fileName,
+                            "data": base64.b64encode(i.data).decode("utf-8"),
+                        }
+                    )
         return formattedMedia
 
     def _buildNewDecksAsRequired(self, deck_names):
         new_deck_paths = []
         for deck_name in deck_names:
             full_deck_path = self._getFullDeckPath(deck_name)
-            if full_deck_path not in self.AnkiBridge.deckNames() and full_deck_path not in new_deck_paths:
+            if (
+                full_deck_path not in self.AnkiBridge.deckNames()
+                and full_deck_path not in new_deck_paths
+            ):
                 new_deck_paths.append(full_deck_path)
 
         # Create decks

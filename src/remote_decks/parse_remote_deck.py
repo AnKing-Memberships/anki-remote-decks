@@ -1,5 +1,6 @@
 import re
 
+import bs4
 import requests
 from bs4 import BeautifulSoup
 
@@ -12,7 +13,7 @@ def getRemoteDeck(url):
 
     # Get remote page
     # TODO Validate url before getting data
-    if url.startswith('https://docs.google.com/') and not url.endswith('pub'):
+    if url.startswith("https://docs.google.com/") and not url.endswith("pub"):
         raise Exception("Use the Publish link, not the Sharing link")
     pageType = _determinePageType(url)
     deck = None
@@ -33,9 +34,9 @@ def _determinePageType(url):
     # TODO use url to determine page types
     csvString = "/spreadsheets/"
     documentString = "/document/"
-    if (documentString in url):
+    if documentString in url:
         return "html"
-    elif (csvString in url):
+    elif csvString in url:
         return "csv"
     else:
         return None
@@ -54,63 +55,71 @@ def _parseHtmlPageToAnkiDeck(data):
     return deck
 
 
-def _getCssStyles(cssData):
+def _extract_css_styles(style_item: bs4.element.Tag):
 
-    # Google docs used the following class for lists $c1
-    cSectionRegexPattern = "\.c\d{1,2}\{[^\}]+}"
-    cssSections = re.findall(cSectionRegexPattern, cssData.text)
+    # Google docs uses c1, c2, ... classes for styling
+    css_section_re = "\.c\d+\{[\w\W]+?}"
+    html_str = style_item.decode_contents()
+    css_sections = re.findall(css_section_re, html_str)
 
-    cssStyles = {}
+    result = {}
+
     # for each c section extract critical data
-    regexValuePattern = ":[^;^}\s]+[;}]"
-    startSectionRegex = "[;{]"
-    for section in cssSections:
+    data_re = ":[^;^}\s]+[;}]"
+    section_start_re = "[;{]"
+    for section in css_sections:
         name = re.findall("c[\d]+", section)[0]
-        color = re.findall("{}{}{}".format(
-            startSectionRegex, "color", regexValuePattern), section)
-        fontStyle = re.findall("{}{}{}".format(
-            startSectionRegex, "font-style", regexValuePattern), section)
-        fontWeight = re.findall("{}{}{}".format(
-            startSectionRegex, "font-weight", regexValuePattern), section)
-        textDecoration = re.findall("{}{}{}".format(
-            startSectionRegex, "text-decoration", regexValuePattern), section)
-        verticalAlign = re.findall("{}{}{}".format(
-            startSectionRegex, "vertical-align", regexValuePattern), section)
+        color = re.findall("{}{}{}".format(section_start_re, "color", data_re), section)
+        font_style = re.findall(
+            "{}{}{}".format(section_start_re, "font-style", data_re), section
+        )
+        font_weight = re.findall(
+            "{}{}{}".format(section_start_re, "font-weight", data_re),
+            section,
+        )
+        text_decoration = re.findall(
+            "{}{}{}".format(section_start_re, "text-decoration", data_re),
+            section,
+        )
+        vertical_align = re.findall(
+            "{}{}{}".format(section_start_re, "vertical-align", data_re),
+            section,
+        )
 
         # Ignore default values
-        if (len(color) > 0 and "color:#000000" in color[0]):
+        if len(color) > 0 and "color:#000000" in color[-1]:
             color = []
-        if (len(fontWeight) > 0 and "font-weight:400" in fontWeight[0]):
-            fontWeight = []
-        if (len(fontStyle) > 0 and "font-style:normal" in fontStyle[0]):
-            fontStyle = []
-        if (len(textDecoration) > 0 and "text-decoration:none" in textDecoration[0]):
-            textDecoration = []
-        if (len(verticalAlign) > 0 and "vertical-align:baseline" in verticalAlign[0]):
-            verticalAlign = []
+        if len(font_weight) > 0 and "font-weight:400" in font_weight[-1]:
+            font_weight = []
+        if len(font_style) > 0 and "font-style:normal" in font_style[-1]:
+            font_style = []
+        if len(text_decoration) > 0 and "text-decoration:none" in text_decoration[-1]:
+            text_decoration = []
+        if len(vertical_align) > 0 and "vertical-align:baseline" in vertical_align[-1]:
+            vertical_align = []
 
-        d = [color, fontStyle, fontWeight, textDecoration, verticalAlign]
+        style_rules = [color, font_style, font_weight, text_decoration, vertical_align]
+        style_values = []
+        for style_rule in style_rules:
+            if len(style_rule) > 0:
+                cleaned_style = style_rule[-1][1:-1]
+                style_values.append(cleaned_style)
 
-        styleValues = []
-        for i in d:
-            if len(i) > 0:
-                cleanedStyle = i[0][1:-1]
-                styleValues.append(cleanedStyle)
-        cssStyles[name] = styleValues
+        result[name] = style_values
 
-    return cssStyles
+    return result
 
 
 def _generateOrgListFromHtmlPage(cell_content):
 
-    soup = BeautifulSoup(cell_content, 'html.parser')
+    soup = BeautifulSoup(cell_content, "html.parser")
     title = soup.find("div", {"id": "title"})
     deckName = title.text
     contents = soup.find_all(["table", "p"])
 
-    cssStyles = {}
+    css_styles = {}  # dict from class name to style rules
     for styles_item in soup.find_all("style"):
-        cssStyles.update(_getCssStyles(styles_item))
+        css_styles.update(_extract_css_styles(styles_item))
 
     multiCommentSection = False
     orgFormattedFile = []
@@ -148,25 +157,27 @@ def _generateOrgListFromHtmlPage(cell_content):
 
         elif item.name == "table":
             rows = []
-            for row in item.find_all('tr'):
-                cell_content = row.find('td')
-                _apply_styles(cell_content, cssStyles)
+            for row in item.find_all("tr"):
+                cell_content = row.find("td")
+                _apply_styles(cell_content, css_styles)
 
                 images = cell_content.find_all("img")
                 for img in images:
                     styles = img["style"]
-                    width = m.group(1) if (m := re.search(
-                        "width: (.+?);", styles)) else ""
-                    height = m.group(1) if (m := re.search(
-                        "height: (.+?);", styles)) else ""
+                    width = (
+                        m.group(1) if (m := re.search("width: (.+?);", styles)) else ""
+                    )
+                    height = (
+                        m.group(1) if (m := re.search("height: (.+?);", styles)) else ""
+                    )
                     image_text = f"[image={img['src']}, height={height}, width={width}]"
                     img.parent.insert_after(image_text)
                     _clean_up(img)
 
                 if (
-                    not (chs := cell_content.contents) or
-                    (len(chs) == 1 and chs[0].name == "p" and not chs[0].contents) or
-                    (all(isinstance(x, str) and x.strip() == "" for x in chs))
+                    not (chs := cell_content.contents)
+                    or (len(chs) == 1 and chs[0].name == "p" and not chs[0].contents)
+                    or (all(isinstance(x, str) and x.strip() == "" for x in chs))
                 ):
                     # append empty row if the table row is empty apart from whitespace
                     rows.append("")
@@ -186,11 +197,12 @@ def substitute_cloze_aliases(html):
     result = html
     cloze_idx = 1
     alias_re = "\$(\d*)\$(.+?)\$\$"
-    while (m := re.search(alias_re, result)):
+    while m := re.search(alias_re, result):
         number, text = m.groups()
         cur_idx = number if number else cloze_idx
         result = re.sub(
-            alias_re, f"{{{{c{cur_idx}::{text.strip()}}}}}", result, count=1)
+            alias_re, f"{{{{c{cur_idx}::{text.strip()}}}}}", result, count=1
+        )
         cloze_idx += 1
     return result
 
@@ -200,6 +212,7 @@ def _clean_up(item):
     item.decompose()
     if not parent.contents:
         _clean_up(parent)
+
 
 ### Special cases ###
 
@@ -212,7 +225,7 @@ def _startOfMultiLineComment(item):
         sections = item.find_all("span")
         for span in sections:
             line += span.text
-        if ("#multilinecommentstart" == line.replace(" ", "").lower()):
+        if "#multilinecommentstart" == line.replace(" ", "").lower():
             return True
     return False
 
@@ -225,7 +238,7 @@ def _endOfMultiLineComment(item):
         sections = item.find_all("span")
         for span in sections:
             line += span.text
-        if ("#multilinecommentend" == line.replace(" ", "").lower()):
+        if "#multilinecommentend" == line.replace(" ", "").lower():
             return True
     return False
 
@@ -244,7 +257,7 @@ def _apply_styles(item, cssStyles, depth=0):
     item.attrs.pop("class", None)
 
     for child in item.children:
-        _apply_styles(child, cssStyles, depth=depth+1)
+        _apply_styles(child, cssStyles, depth=depth + 1)
 
     # text in tables gets wrapped into p tags by default which should be removed
     if depth == 1 and item.name == "p" and len(list(item.children)) == 1:
