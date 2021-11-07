@@ -1,4 +1,7 @@
 {
+    "sync_shortcut": "Ctrl+Shift+Q",
+    "add_deck_shortcut": "Ctrl+Shift+V",
+    "remove_deck_shortcut": "Ctrl+Shift+D",
     "remote-decks": {},
     "debug": false
 }
