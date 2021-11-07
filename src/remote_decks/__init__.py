@@ -9,13 +9,15 @@ from .main import add_new_deck, remove_remote_deck, sync_decks
 CONFIG = mw.addonManager.getConfig(__name__)
 
 errorTemplate = """
-Hey there! It seems an error has occurred while running.
-
-The error was {}.
-
-If you would like me to fix it please report it here: https://github.com/c-okelly/anki-remote-decks/issues
-
-Please be sure to provide as much information as possible. Specifically the file the caused the error.
+Hey there! It seems an error has occurred while using the <b>Remote Decks</b> add-on.<br>
+<br>
+The error was:<br>
+<i>{}</i><br>
+<br>
+If you would like me to fix it please report it here: <a href="https://github.com/RisingOrange/anki-remote-decks/issues">https://github.com/RisingOrange/anki-remote-decks/issues</a><br> 
+<br>
+Please be sure to provide as much information as possible. Specifically the file that caused the error.<br>
+(Another window with an error message will open after you close this)
 """
 
 
@@ -26,13 +28,10 @@ def addDeck():
         ankiBridge.startEditing()
         add_new_deck()
 
-    # General exception
-    except RuntimeError as e:
+    except Exception as e:
         errorMessage = str(e)
-        showInfo(errorTemplate.format(errorMessage))
-        if ankiBridge.getConfig().get("debug", False) == True:
-            trace = traceback.format_exc()
-            showInfo(str(trace))
+        showInfo(errorTemplate.format(errorMessage), textFormat="rich")
+        raise e
 
     finally:
         ankiBridge.stopEditing()
@@ -46,13 +45,10 @@ def syncDecks():
         ankiBridge.startEditing()
         sync_decks()
 
-    # General exception
-    except RuntimeError as e:
+    except Exception as e:
         errorMessage = str(e)
-        showInfo(errorTemplate.format(errorMessage))
-        if ankiBridge.getConfig().get("debug", False) == True:
-            trace = traceback.format_exc()
-            showInfo(str(trace))
+        showInfo(errorTemplate.format(errorMessage), textFormat="rich")
+        raise e
 
     finally:
         showInfo("Sync completed")
@@ -67,13 +63,10 @@ def removeRemote():
         ankiBridge.startEditing()
         remove_remote_deck()
 
-    # General exception
-    except RuntimeError as e:
+    except Exception as e:
         errorMessage = str(e)
-        showInfo(errorTemplate.format(errorMessage))
-        if ankiBridge.getConfig().get("debug", False) == True:
-            trace = traceback.format_exc()
-            showInfo(str(trace))
+        showInfo(errorTemplate.format(errorMessage), textFormat="rich")
+        raise e
 
     finally:
         ankiBridge.stopEditing()

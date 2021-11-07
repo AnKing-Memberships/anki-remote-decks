@@ -55,10 +55,8 @@ def sync_decks():
                 showInfo("Adding cards to empty deck: {}".format(deck_name))
 
         except Exception as e:
-            deckMessage = "\nThe following deck failed to sync: {}".format(
-                deck_name)
-            raise type(e)(
-                str(e) + deckMessage).with_traceback(sys.exc_info()[2])
+            deckMessage = f"\nThe following deck failed to sync: {deck_name}"
+            raise type(e)(str(e) + deckMessage).with_traceback(sys.exc_info()[2])
 
     # Sync missing media data
     formattedMedia = ankiBridge.prepareMedia(all_deck_media)
