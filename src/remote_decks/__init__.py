@@ -2,6 +2,7 @@ from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
 
+from .gui.menu import setup_menu
 from .libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import AnkiPluginConnector
 from .main import add_new_deck, remove_remote_deck, sync_decks
 
@@ -79,24 +80,19 @@ def removeRemote():
         mw.reset()
 
 
-if QAction != None and mw != None:
-    remoteDecksSubMenu = QMenu("Manage remote deck", mw)
-    mw.form.menuTools.addMenu(remoteDecksSubMenu)
+menu = setup_menu()
 
-    # set it to call testFunction when it's clicked
-    remoteDeckAction = QAction("Add new remote Deck", mw)
-    remoteDeckAction.setShortcut(QKeySequence(CONFIG["add_deck_shortcut"]))
-    remoteDeckAction.triggered.connect(addDeck)
-    remoteDecksSubMenu.addAction(remoteDeckAction)
+remoteDeckAction = QAction("Add new remote Deck", mw)
+remoteDeckAction.setShortcut(QKeySequence(CONFIG["add_deck_shortcut"]))
+remoteDeckAction.triggered.connect(addDeck)
+menu.addAction(remoteDeckAction)
 
-    # Sync remote decks
-    syncDecksAction = QAction("Sync remote decks", mw)
-    syncDecksAction.setShortcut(QKeySequence(CONFIG["sync_shortcut"]))
-    syncDecksAction.triggered.connect(syncDecks)
-    remoteDecksSubMenu.addAction(syncDecksAction)
+syncDecksAction = QAction("Sync remote decks", mw)
+syncDecksAction.setShortcut(QKeySequence(CONFIG["sync_shortcut"]))
+syncDecksAction.triggered.connect(syncDecks)
+menu.addAction(syncDecksAction)
 
-    # Remove remote deck
-    removeRemoteDeck = QAction("Remove remote deck", mw)
-    removeRemoteDeck.setShortcut(QKeySequence(CONFIG["remove_deck_shortcut"]))
-    removeRemoteDeck.triggered.connect(removeRemote)
-    remoteDecksSubMenu.addAction(removeRemoteDeck)
+removeRemoteDeck = QAction("Remove remote deck", mw)
+removeRemoteDeck.setShortcut(QKeySequence(CONFIG["remove_deck_shortcut"]))
+removeRemoteDeck.triggered.connect(removeRemote)
+menu.addAction(removeRemoteDeck)
