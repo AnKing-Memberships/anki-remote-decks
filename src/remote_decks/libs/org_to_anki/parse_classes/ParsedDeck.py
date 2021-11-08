@@ -1,4 +1,3 @@
-
 from typing import List
 
 from ..parse_classes.ParsedNote import ParsedNote
@@ -14,7 +13,6 @@ class ParsedDeck:
         self.subDecks = []
         self._ankiQuestions = []
         self._parameters = {}
-        self._comments = []
         self._media = []
         self._sourceFilePath = ""
 
@@ -28,12 +26,6 @@ class ParsedDeck:
 
         return media
 
-    def addComment(self, comment):  # (str)
-        self._comments.append(comment)
-
-    def getComments(self):
-        return self._comments
-
     def addParameter(self, key, value):  # (str, str)
         self._parameters[key] = value
 
@@ -43,7 +35,9 @@ class ParsedDeck:
     def getParameter(self, key, default=None):
         return self._parameters.get(key, default)
 
-    def get_notes(self, parentName=None, parentParamaters=None, joiner='::') -> List[ParsedNote]:
+    def get_notes(
+        self, parentName=None, parentParamaters=None, joiner="::"
+    ) -> List[ParsedNote]:
         result = []
 
         for question in self._ankiQuestions:
@@ -77,7 +71,7 @@ class ParsedDeck:
 
         return result
 
-    def getDeckNames(self, parentName=None, joiner='::'):  # (str, str)
+    def getDeckNames(self, parentName=None, joiner="::"):  # (str, str)
         deckNames = []
         if parentName is not None:
             deckNames.append(parentName + joiner + self.deckName)
@@ -107,11 +101,24 @@ class ParsedDeck:
         return len(self.subDecks) > 0
 
     def __str__(self):
-        return ("DeckName: %s.\nSubDecks: %s.\nQuestions: %s.\nParamters: %s.\nComments: %s.\nMedia: %s") % (
-            self.deckName, self.subDecks, self._ankiQuestions, self._parameters, self._comments, self._media)
+        return (
+            "DeckName: %s.\nSubDecks: %s.\nQuestions: %s.\nParamters: %s.\nComments: %s.\nMedia: %s"
+        ) % (
+            self.deckName,
+            self.subDecks,
+            self._ankiQuestions,
+            self._parameters,
+            self._media,
+        )
 
     def __eq__(self, other):
         if other == None:
             return False
-        return self.deckName == other.deckName and self.getDeckNames() == other.getDeckNames() and self.get_notes() == other.getQuestions(
-        ) and self.subDecks == other.subDecks and self._parameters == other._parameters and self._comments == other._comments and self._media == other._media
+        return (
+            self.deckName == other.deckName
+            and self.getDeckNames() == other.getDeckNames()
+            and self.get_notes() == other.getQuestions()
+            and self.subDecks == other.subDecks
+            and self._parameters == other._parameters
+            and self._media == other._media
+        )

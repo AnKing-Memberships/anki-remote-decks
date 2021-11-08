@@ -1,34 +1,50 @@
-
+from .org_parser import NoteFactoryUtils, ParserUtils
 from .parse_classes.ParsedDeck import ParsedDeck
-from .parse_classes.ParsedNoteFactory import ParsedNoteFactory
+from .parse_classes.ParsedNote import ParsedNote
 
 
 def build_deck_from_org_lines(lines, deckName):
 
     deck = ParsedDeck(deckName)
-    note_factory = ParsedNoteFactory(deckName)
-
     groups = grouped_lines(lines)
 
-    section_comments = []
+    current_parameters = dict()
     for type, group_lines in groups:
 
         if type == "note":
-            for comment in section_comments:
-                note_factory.addCommentLine(comment)
-
-            note_factory.addQuestionLine(group_lines[0])
-            for field in group_lines[1:]:
-                note_factory.addAnswerLine(field)
-
-            new_anki_note = note_factory.parse()
+            new_anki_note = parse(group_lines, current_parameters)
             deck.add_note(new_anki_note)
 
         elif type == "comment":
-            for line in group_lines:
-                section_comments.append(line)
+            for comment in group_lines:
+                current_parameters.update(ParserUtils.convertLineToParameters(comment))
 
     return deck
+
+
+def parse(lines, parameters) -> ParsedNote:
+
+    utils = NoteFactoryUtils.NoteFactoryUtils()
+    result = ParsedNote()
+
+    # Add question
+    question = lines[0]
+    line = utils.remove_asterisks(question)
+    line = utils.substitute_img_tags(line, result)
+    result.addQuestion(line)
+
+    # Add answers
+    answers = lines[1:]
+    for answer in answers:
+        line = utils.remove_asterisks(answer)
+        line = utils.substitute_img_tags(line, result)
+        result.addAnswer(line)
+
+    # Add parameters
+    for key, val in parameters.items():
+        result.setParameter(key, val)
+
+    return result
 
 
 def grouped_lines(lines):
@@ -39,14 +55,18 @@ def grouped_lines(lines):
 
         if line.startswith("* "):
             group_lines = [line]
-            while cur_lines and (cur_lines[0].startswith("** ") or cur_lines[0].strip() == ""):
+            while cur_lines and (
+                cur_lines[0].startswith("** ") or cur_lines[0].strip() == ""
+            ):
                 line = cur_lines.pop(0)
                 group_lines.append(line)
             result.append(("note", group_lines))
 
         elif line.startswith("# "):
             group_lines = [line]
-            while cur_lines and (cur_lines[0].startswith("# ") or cur_lines[0].strip() == ""):
+            while cur_lines and (
+                cur_lines[0].startswith("# ") or cur_lines[0].strip() == ""
+            ):
                 line = cur_lines.pop(0)
                 group_lines.append(line)
             result.append(("comment", group_lines))

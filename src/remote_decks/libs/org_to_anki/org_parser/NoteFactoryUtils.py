@@ -10,7 +10,7 @@ class NoteFactoryUtils:
 
         self.lazyLoadImages = config.lazyLoadImages
 
-    def parseLine(self, line, note):
+    def substitute_img_tags(self, line, note):
         result = line
 
         if re.search("\[image=[^]]+?\]", line):
@@ -26,26 +26,10 @@ class NoteFactoryUtils:
 
         return result
 
-    def removeAsterisk(self, line):  # (str)
-        if line.strip()[0] == "*":
+    def remove_asterisks(self, line):  # (str)
+        if line.strip().startswith("*"):
             line = line.strip().split(" ")[1:]
             line = " ".join(line)
             return line
         else:
             return line
-
-    def countAsterisk(self, line):  # (str)
-        return line.split(" ")[0].count("*", 0, 10)
-
-    def formatLine(self, line):  # (str)
-
-        formattedLine = line
-
-        # Strip extra spaces for multiline
-        if "\n" in formattedLine:
-            cleanLine = ""
-            for i in formattedLine.split("\n"):
-                cleanLine += i.strip() + "\n"
-            formattedLine = cleanLine.strip()
-
-        return formattedLine

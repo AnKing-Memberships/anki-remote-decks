@@ -1,26 +1,21 @@
 from .ParsedNoteMedia import ParsedNoteMedia
-from .NamedNoteField import NamedNoteField
 
 
 class ParsedNote:
-
     def __init__(self):
         self.deckName = None
         self.question = []
         self._answers = []
-        self._tags = []
-        self._comments = []
         self._parameters = {}
         self._media = []
-        self._namedNoteFields = {}
 
-    def setDeckName(self, deckName):  # (str)
+    def setDeckName(self, deckName):
         self.deckName = deckName
 
     def getDeckName(self):
         return self.deckName
 
-    def addQuestion(self, question):  # (str
+    def addQuestion(self, question):
         self.question.append(question)
 
     def getQuestions(self):
@@ -30,8 +25,11 @@ class ParsedNote:
         self._media.append(ParsedNoteMedia("image", fileName, fileData))
 
     def addLazyImage(self, fileName, url, imageFunc):
-        self._media.append(ParsedNoteMedia(
-            "image", fileName, data=None, imageUrl=url, imageFunction=imageFunc))
+        self._media.append(
+            ParsedNoteMedia(
+                "image", fileName, data=None, imageUrl=url, imageFunction=imageFunc
+            )
+        )
 
     def hasMedia(self):
         return len(self._media) > 0
@@ -40,66 +38,17 @@ class ParsedNote:
         return self._media
 
     # Getters and setters #
-    def addAnswer(self, answer, fieldName=None):  # (str)
-        # Check if answer line is for specific field or add to default
-        if fieldName is not None:
-            self.addLineToNamedField(fieldName, answer)
-        else:
-            self._answers.append(answer)
+    def addAnswer(self, answer):  # (str)
+        self._answers.append(answer)
 
     def getAnswers(self):
         return self._answers
 
-    def addComment(self, comment):  # (str)
-        self._comments.append(comment)
-
-    def getComments(self):
-        return self._comments
-
-    def addParameter(self, key, value):  # (str, str)
+    def setParameter(self, key, value):  # (str, str)
         self._parameters[key] = value
-
-        # Parameters is a tag
-        if key.lower() == "tag" or key.lower() == "tags":
-            for tag in value.split(","):
-                self.addTag(tag.strip())
 
     def getParameter(self, key, default=None):
         return self._parameters.get(key, default)
 
-    def getAllParamters(self):
-        return self._parameters.copy()
-
-    def addTag(self, tag):  # (str)
-        self._tags.append(tag)
-
     def getTags(self):
-        return self._tags
-
-    def addNoteField(self, fieldName):
-        namedField = NamedNoteField(fieldName)
-        self._namedNoteFields[fieldName] = namedField
-
-    def addLineToNamedField(self, fieldName, line):
-        if self._namedNoteFields.get(fieldName, None) == None:
-            self.addNoteField(fieldName)
-
-        namedField = self._namedNoteFields.get(fieldName)
-        namedField.addLine(line)
-
-    def getNamedFields(self):
-        return list(self._namedNoteFields.values())
-
-    # String representation
-    def __str__(self):
-        return ("DeckName: {}. Question: {}. \nAsnwers: {}. \nTags: {}.\nComments: {}.\nParameters: {},\nMedia: {},\nCodeLanguage: {},\nCode: {}, NamedFields: {}").format(
-            self.deckName, self.question, self.getAnswers(), self.getTags(), self.getComments(), self._parameters, self._media, self._codeLanguage, self._codeSection, self.getNamedFields())
-
-    # Comparison to other questions
-    def __eq__(self, other):
-        if not isinstance(other, ParsedNote):
-            return False
-
-        return self.question == other.question and self.getAnswers() == other.getAnswers() and self.getTags() == other.getTags(
-        ) and self.deckName == other.deckName and self.getComments() == other.getComments() and self._parameters == other._parameters and self.getMedia(
-        ) == other.getMedia() and self.getCodeLanguage() == other.getCodeLanguage() and self.getCodeSection() == other.getCodeSection() and self.getNamedFields() == other.getNamedFields()
+        return self._parameters.get("Tag", "").split(",")

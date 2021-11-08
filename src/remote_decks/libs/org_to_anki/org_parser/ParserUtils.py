@@ -1,7 +1,10 @@
-
 # Get Anki sync or urllib2
+from typing import Dict
+
+
 try:
     from anki.sync import AnkiRequestsClient
+
     anki = "set"
 except:
     anki = None
@@ -32,10 +35,10 @@ def convertCommentsToParameters(comments):
     return parameters
 
 
-def convertLineToParameters(line):
+def convertLineToParameters(line) -> Dict:
 
     parameters = {}
-    line = line.strip()[line.count("#"):]
+    line = line.strip()[line.count("#") :]
 
     # Return if no paramters
     if ":" not in line:
