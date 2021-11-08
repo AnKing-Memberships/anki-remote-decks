@@ -5,10 +5,8 @@ from aqt.qt import *
 from aqt.utils import showInfo
 
 from .deck_diff import deck_diff
-from .libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import \
-    AnkiPluginConnector
-from .libs.org_to_anki.note_dict_from_parsed_note import \
-    note_dict_from_parsed_note
+from .libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import AnkiPluginConnector
+from .libs.org_to_anki.note_dict_from_parsed_note import note_dict_from_parsed_note
 from .parse_remote_deck import getRemoteDeck
 
 # name of the deck that is the root of all remote decks
@@ -21,14 +19,14 @@ def sync_decks():
     ankiBridge = AnkiPluginConnector(ROOT_DECK_NAME)
 
     # Get config data
-    remote_data = ankiBridge.getConfig()
+    CONFIG = ankiBridge.getConfig()
 
     # To be synced later
     all_deck_media = []
 
-    for deckKey in remote_data["remote-decks"].keys():
+    for deck_key in CONFIG["remote-decks"].keys():
         try:
-            current_remote_info = remote_data["remote-decks"][deckKey]
+            current_remote_info = CONFIG["remote-decks"][deck_key]
 
             # Get Remote deck
             deck_name = current_remote_info["deckName"]
@@ -49,7 +47,7 @@ def sync_decks():
             # Update existing deck or create new one
             if local_deck:
                 deckDiff = deck_diff(remote_deck, local_deck)
-                _sync_deck(deckDiff)
+                _sync_deck(deckDiff, current_remote_info["syncMode"])
             else:
                 ankiBridge.create_new_deck(remote_deck)
                 showInfo("Adding cards to empty deck: {}".format(deck_name))
@@ -64,10 +62,11 @@ def sync_decks():
     # Add Media
     for media_info in formattedMedia:
         ankiBridge.AnkiBridge.storeMediaFile(
-            media_info.get("fileName"), media_info.get("data"))
+            media_info.get("fileName"), media_info.get("data")
+        )
 
 
-def _sync_deck(deck_diff):
+def _sync_deck(deck_diff, sync_mode):
 
     ankiBridge = AnkiPluginConnector(ROOT_DECK_NAME)
 
@@ -87,23 +86,25 @@ def _sync_deck(deck_diff):
             else:
                 raise e
 
-    # Update existing notes
-    for parsed_note_and_local_id in updated_notes:
-        note, note_id = parsed_note_and_local_id
-        built_note_ = note_dict_from_parsed_note(note)
-        _update_note(note_id, built_note_)
+    assert sync_mode in ["everything", "added_only"]
+    if sync_mode == "everything":
+        # Update existing notes
+        for parsed_note_and_local_id in updated_notes:
+            note, note_id = parsed_note_and_local_id
+            built_note_ = note_dict_from_parsed_note(note)
+            _update_note(note_id, built_note_)
 
-    # Remove notes
-    for parsed_note_and_local_id in removed_notes:
-        note, note_id = parsed_note_and_local_id
-        ankiBridge.deleteNotes([note_id])
+        # Remove notes
+        for parsed_note_and_local_id in removed_notes:
+            note, note_id = parsed_note_and_local_id
+            ankiBridge.deleteNotes([note_id])
 
 
 def _update_note(noteId, built_note):
     fields = built_note["fields"]
     ankiNote = mw.col.getNote(noteId)
     if ankiNote is None:
-        raise Exception('note was not found: {}'.format(noteId))
+        raise Exception("note was not found: {}".format(noteId))
 
     for name, value in fields.items():
         if name in ankiNote:
@@ -112,20 +113,69 @@ def _update_note(noteId, built_note):
     ankiNote.flush()
 
 
+class AddRemoteDeckDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Add Remote Deck")
+
+        self.layout = QFormLayout()
+        self.setLayout(self.layout)
+
+        self.url_input = QLineEdit()
+        self.layout.addRow("Remote Deck url:", self.url_input)
+
+        self.layout.addRow(QLabel("Sync mode:"))
+
+        self.sync_mode = None
+        self.button_group = QButtonGroup()
+        b0 = QRadioButton("Sync added notes")
+        b0.setToolTip(
+            "Notes from the Google docs document that are not in the local deck will be added to it."
+        )
+
+        def on_b0_clicked():
+            self.sync_mode = "added_only"
+
+        b0.clicked.connect(on_b0_clicked)
+        self.button_group.addButton(b0)
+
+        b1 = QRadioButton("Sync everything (added, updated and deleted)")
+        b1.setToolTip(
+            "Local deck will mirror Google docs document.\nLocal changes will be overwritten on sync."
+        )
+
+        def on_b1_clicked():
+            self.sync_mode = "everything"
+
+        b1.clicked.connect(on_b1_clicked)
+        self.button_group.addButton(b1)
+        self.layout.addRow(b0)
+        self.layout.addRow(b1)
+
+        on_b0_clicked()
+        b0.setChecked(True)
+
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        self.layout.addRow(button_box)
+
+
 def add_new_deck():
 
-    # Get url from user
-    # url = "https://docs.google.com/document/d/e/2PACX-1vRXWGu8WvCojrLqMKsf8dTOWstrO1yLy4-8x5nkauRnMyc4iXrwkwY3BThXHc3SlCYqv8ULxup3QiOX/pub"
-    url, okPressed = QInputDialog.getText(
-        mw, "Get Remote Deck url", "Remote Deck url:", QLineEdit.Normal, "")
-    if okPressed == False:
+    dialog = AddRemoteDeckDialog()
+    if dialog.exec() != QDialog.Accepted:
         return
+
+    url = dialog.url_input.text()
+    sync_mode = dialog.sync_mode
 
     # Get data and build deck
     ankiBridge = AnkiPluginConnector()
 
     deck = getRemoteDeck(url)
-    deckName = deck.deckName
+    deck_name = deck.deckName
 
     # Add url to user data
     config = ankiBridge.getConfig()
@@ -134,7 +184,11 @@ def add_new_deck():
         showInfo("Decks has already been added for: {}".format(url))
         return
 
-    config["remote-decks"][url] = {"url": url, "deckName": deckName}
+    config["remote-decks"][url] = {
+        "url": url,
+        "deckName": deck_name,
+        "syncMode": sync_mode,
+    }
 
     # Upload new deck
     ankiBridge.create_new_deck(deck)
@@ -163,7 +217,13 @@ def remove_remote_deck():
     # Ask user to choose a deck
     advBasicOptions = deckNames
     selection, okPressed = QInputDialog.getItem(
-        mw, "Select Deck to Unlink", "Select a deck to Unlink", advBasicOptions, 0, False)
+        mw,
+        "Select Deck to Unlink",
+        "Select a deck to Unlink",
+        advBasicOptions,
+        0,
+        False,
+    )
 
     # Remove desk
     if okPressed == True:
