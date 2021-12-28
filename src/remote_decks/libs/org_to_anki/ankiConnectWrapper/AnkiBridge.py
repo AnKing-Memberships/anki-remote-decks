@@ -112,7 +112,7 @@ class AnkiBridge:
 
     ### Helper functions ###
     def startEditing(self):
-        self.window().requireReset()
+        self.window().reset()
 
     def stopEditing(self):
         if self.collection() is not None:
