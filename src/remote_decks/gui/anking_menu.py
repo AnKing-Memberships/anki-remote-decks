@@ -1,6 +1,6 @@
 from aqt import mw
 from aqt.utils import openLink
-from aqt.qt import QMenu, QAction
+from aqt.qt import QMenu, QAction, QMenuBar
 
 
 # fmt: off
@@ -66,12 +66,11 @@ def maybe_add_get_help_submenu(menu: QMenu) -> None:
 def get_anking_menu() -> QMenu:
     """Get or create AnKing menu. Make sure its submenus are up to date."""
     menu_name = "&AnKing"
-    menubar = mw.form.menubar
-    for a in menubar.actions():
-        if menu_name == a.text():
-            menu = a.menu()
-            break
-    else:
-        menu = menubar.addMenu(menu_name)
+    menubar: QMenuBar = mw.form.menubar
+    submenus = menubar.findChildren(QMenu)
+    for s in submenus:
+        if s.title() == menu_name:
+            return s
+    menu = menubar.addMenu(menu_name)
     maybe_add_get_help_submenu(menu)
     return menu
