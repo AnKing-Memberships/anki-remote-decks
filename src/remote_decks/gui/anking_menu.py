@@ -68,9 +68,10 @@ def get_anking_menu() -> QMenu:
     menu_name = "&AnKing"
     menubar: QMenuBar = mw.form.menubar
     submenus = menubar.findChildren(QMenu)
-    for s in submenus:
-        if s.title() == menu_name:
-            return s
-    menu = menubar.addMenu(menu_name)
+    for submenu in submenus:
+        if submenu.title() == menu_name:
+            menu = submenu
+    else:
+        menu = menubar.addMenu(menu_name)
     maybe_add_get_help_submenu(menu)
     return menu
