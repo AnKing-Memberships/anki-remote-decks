@@ -1,9 +1,12 @@
 from aqt import mw
+from aqt.gui_hooks import profile_did_open
 from aqt.qt import *
 from aqt.utils import showInfo
 
+from .compat import add_compat_aliases
 from .gui.menu import setup_menu
-from .libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import AnkiPluginConnector
+from .libs.org_to_anki.ankiConnectWrapper.AnkiPluginConnector import \
+    AnkiPluginConnector
 from .main import add_new_deck, remove_remote_deck, sync_decks
 
 CONFIG = mw.addonManager.getConfig(__name__)
@@ -89,3 +92,6 @@ removeRemoteDeck = QAction("Remove remote deck", mw)
 removeRemoteDeck.setShortcut(QKeySequence(CONFIG["remove_deck_shortcut"]))
 removeRemoteDeck.triggered.connect(removeRemote)
 menu.addAction(removeRemoteDeck)
+
+
+profile_did_open.append(add_compat_aliases)
