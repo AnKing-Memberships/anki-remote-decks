@@ -156,7 +156,7 @@ class AddRemoteDeckDialog(QDialog):
         on_b0_clicked()
         b0.setChecked(True)
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.layout.addRow(button_box)
@@ -165,7 +165,7 @@ class AddRemoteDeckDialog(QDialog):
 def add_new_deck():
 
     dialog = AddRemoteDeckDialog()
-    if dialog.exec() != QDialog.Accepted:
+    if dialog.exec() != QDialog.DialogCode.Accepted:
         return
 
     url = dialog.url_input.text()
