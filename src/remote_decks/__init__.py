@@ -17,7 +17,7 @@ Hey there! It seems an error has occurred while using the <b>Remote Decks</b> ad
 The error was:<br>
 <i>{}</i><br>
 <br>
-If you would like me to fix it please report it here: <a href="https://github.com/RisingOrange/anki-remote-decks/issues">https://github.com/RisingOrange/anki-remote-decks/issues</a><br> 
+If you would like me to fix it please report it here: <a href="https://github.com/AnKingMed/anki-remote-decks/issues">https://github.com/AnKingMed/anki-remote-decks/issues</a><br> 
 <br>
 Please be sure to provide as much information as possible. Specifically the file that caused the error.<br>
 (Another window with an error message will open after you close this)
