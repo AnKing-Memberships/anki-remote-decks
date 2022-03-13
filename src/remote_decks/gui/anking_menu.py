@@ -70,6 +70,7 @@ def get_anking_menu() -> QMenu:
     for submenu in submenus:
         if submenu.title() == menu_name:
             menu = submenu
+            break
     else:
         menu = menubar.addMenu(menu_name)
     maybe_add_get_help_submenu(menu)
