@@ -65,11 +65,10 @@ def maybe_add_get_help_submenu(menu: QMenu) -> None:
 def get_anking_menu() -> QMenu:
     """Get or create AnKing menu. Make sure its submenus are up to date."""
     menu_name = "&AnKing"
-    menubar: QMenuBar = mw.form.menubar
-    submenus = menubar.findChildren(QMenu)
-    for submenu in submenus:
-        if submenu.title() == menu_name:
-            menu = submenu
+    menubar = mw.form.menubar
+    for a in menubar.actions():
+        if menu_name == a.text():
+            menu = a.parent()
             break
     else:
         menu = menubar.addMenu(menu_name)
