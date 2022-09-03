@@ -186,6 +186,10 @@ def _generateOrgListFromHtmlPage(cell_content):
                     cell_html = substitute_cloze_aliases(cell_html)
                     rows.append(cell_html)
 
+            if all(row.strip() == "" for row in rows):
+                # ignore empty tables
+                continue
+
             orgFormattedFile.append(f"* {rows[0]}")
             for x in rows[1:]:
                 orgFormattedFile.append(f"** {x}")
