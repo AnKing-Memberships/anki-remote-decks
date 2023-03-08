@@ -18,8 +18,9 @@ class NoteFactoryUtils:
             url_sections = re.findall(image_re, line)
             for url_section in url_sections:
                 url, height, width = url_section
-                image_name = f"img_{hashlib.md5(url.encode()).hexdigest()}"
-                note.addLazyImage(image_name, url, getImageFromUrl)
+                image_data = getImageFromUrl(url)
+                image_name = f"img_{hashlib.md5(image_data).hexdigest()}"
+                note.addImage(image_name, image_data)
 
                 image_html = f'<img src="{image_name}" height={height} width={width} />'
                 result = re.sub("\[image=[^]]+?\]", image_html, result, count=1)
