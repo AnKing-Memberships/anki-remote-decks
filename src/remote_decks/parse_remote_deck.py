@@ -265,7 +265,11 @@ def _apply_styles(item, cssStyles, depth=0):
 
     # text in tables gets wrapped into p tags by default which should be removed
     if depth == 1 and item.name == "p" and len(list(item.children)) == 1:
-        item.replace_with(list(item.children)[0])
+        first_child = list(item.children)[0]
+        item.replace_with(first_child)
+        if first_child.next_sibling:
+            br = list(first_child.parents)[-1].new_tag("br")
+            first_child.insert_after(br)
 
     if item.name == "span" and len(item.attrs) == 0:
         item.unwrap()
