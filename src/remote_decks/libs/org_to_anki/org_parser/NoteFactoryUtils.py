@@ -6,10 +6,6 @@ from .ParserUtils import getImageFromUrl
 
 
 class NoteFactoryUtils:
-    def __init__(self):
-
-        self.lazyLoadImages = config.lazyLoadImages
-
     def substitute_img_tags(self, line, note):
         result = line
 
