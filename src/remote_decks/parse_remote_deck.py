@@ -269,9 +269,9 @@ def _apply_styles(item: bs4.BeautifulSoup, cssStyles, depth=0):
         and item.name == "p"
         and (children_amount := len(list(item.children))) <= 1
     ):
-        soup: bs4.BeautifulSoup = list(item.parents)[-1]
-        br = soup.new_tag("br")
         if item.next_sibling:
+            soup: bs4.BeautifulSoup = list(item.parents)[-1]
+            br = soup.new_tag("br")
             item.insert_after(br)
 
         if children_amount == 1:
