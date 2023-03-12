@@ -245,7 +245,7 @@ def _endOfMultiLineComment(item):
     return False
 
 
-def _apply_styles(item, cssStyles, depth=0):
+def _apply_styles(item: bs4.BeautifulSoup, cssStyles, depth=0):
     if not hasattr(item, "attrs"):
         return
 
@@ -261,9 +261,22 @@ def _apply_styles(item, cssStyles, depth=0):
     for child in item.children:
         _apply_styles(child, cssStyles, depth=depth + 1)
 
-    # text in tables gets wrapped into p tags by default which should be removed
-    if depth == 1 and item.name == "p" and len(list(item.children)) == 1:
-        item.replace_with(list(item.children)[0])
+    # text in tables gets wrapped into p tags by default which should be replaced with br tags
+    if (
+        depth == 1
+        and item.name == "p"
+        and (children_amount := len(list(item.children))) <= 1
+    ):
+        if item.next_sibling:
+            soup: bs4.BeautifulSoup = list(item.parents)[-1]
+            br = soup.new_tag("br")
+            item.insert_after(br)
+
+        if children_amount == 1:
+            first_child = list(item.children)[0]
+            item.replace_with(first_child)
+        else:
+            item.decompose()
 
     if item.name == "span" and len(item.attrs) == 0:
         item.unwrap()
