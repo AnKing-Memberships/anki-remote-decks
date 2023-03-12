@@ -48,8 +48,6 @@ def _parseHtmlPageToAnkiDeck(data):
     deckName = orgData["deckName"]
     lines = orgData["data"]
 
-    # Ensure images are lazy loaded to reduce load
-    config.lazyLoadImages = True
     deck = build_deck_from_org_lines(lines, deckName)
 
     return deck
