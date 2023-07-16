@@ -9,7 +9,6 @@ Official Add-on => [Anki Remote Decks](https://ankiweb.net/shared/info/911568091
 # Overview
 
 * This add-on is still in beta and so only supports very basic functionality
-* Only Basic cards are currently supported
 * Support for text formatting
 * More features will come in the future
 
