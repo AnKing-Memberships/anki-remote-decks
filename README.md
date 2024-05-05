@@ -1,15 +1,13 @@
-# anki-remote-decks
+# Google Doc Decks
 
 [![Build Status](https://travis-ci.org/c-okelly/anki-remote-decks.svg?branch=master)](https://travis-ci.org/c-okelly/anki-remote-deck)
 
-Anki add-on to allow users to create decks in Google Docs that can then be synced with Anki. The remote deck acts as the source of truth. When a user syncs, cards are added / updated / deleted in the local deck. When cards are updated (excluding the primary field) their history is preserved.
+This anki add-on allows users to create Anki decks in Google Docs that can then be synced with Anki. The remote deck acts as the reference point or the source of truth. When a user syncs, cards are added / updated / deleted in the local deck. When cards are updated in the Google Doc (excluding the primary field), their history is preserved.
 
-Official Add-on => [Anki Remote Decks](https://ankiweb.net/shared/info/911568091)
+Official Add-on => [Google Doc Anki Decks](https://ankiweb.net/shared/info/911568091)
 
 # Overview
 
-* This add-on is still in beta and so only supports very basic functionality
-* Support for text formatting
 * More features will come in the future
 
 GIF of adding a new deck
@@ -34,7 +32,7 @@ There are two steps:
 * Write your Questions and Answers in the following format using bullet points
 
 ```markdown
-# Some comment you don't want included
+# Some comments you don't want included
 * Question 1
   * Answer 1
 * Question 2
@@ -66,7 +64,7 @@ An example published deck [Example Google docs deck](https://docs.google.com/doc
 # Adding the deck to Anki
 
 
-To add a new remote deck:
+To add a new Google Doc deck:
 
 * Click on Tools => Manage Remote Decks => Add new remote deck
 * Add the URL of your remote deck
@@ -89,7 +87,7 @@ To sync all current remote decks:
 GIF of adding new content and syncing
 ![Syncing new content](assets/newQuestion.gif)
 
-# Remove a remote deck
+# Remove a remote Google Doc deck
 
 Removed decks are only unlinked from the remote doc. The local copy is not deleted.
 
@@ -105,22 +103,22 @@ Removed decks are only unlinked from the remote doc. The local copy is not delet
 
 # Formatting support
 
-Currently the following formatting is supported:
+Currently, the following formatting is supported:
 
 * Bold
 * Underlined
 * Italics
 * Colors
 
-# Using Table of contents to sort your file
+# Using the Table of contents to sort your file
 
 Users can now use a table of contents to index large files.
 
-This will allows users to create contents at the top of the file and then creating headings throughout. These will be ignored when generating questions
+This will allows users to create content at the top of the file and then create headings throughout. These will be ignored when generating questions
 
 # Manage image size
 
-Images can be sized by change their size within the Google doc itself. The heigh and width in PX of the image is added to the Anki card.
+Images can be sized by changing their size within the Google doc itself. The height and width in PX of the image is added to the Anki card.
 
 # Controlling note type 
 
@@ -142,7 +140,7 @@ This would set the note to a Cloze:
     * Extra Info
 ```
 
-Cloze notes are a special case where the comment line can be bullet pointed. Trying to get the second indentation for the `Extra field` is too difficult in Google Sheets otherwise.
+Cloze notes are a special case where the comment line can be bullet-pointed. Trying to get the second indentation for the `Extra field` is too difficult in Google Sheets otherwise.
 
 # HTML list types => ```list```
 
@@ -194,9 +192,9 @@ Answer 1
 Answer 2
 ```
 
-# Multiline comments
+# Multi-line comments
 
-Multi line comments are now supports. This allows you to mark an entire section to be ignored and add non Anki related data.
+Multi-line comments are now supported. This allows you to mark an entire section as "ignored" and as add non-Anki-related data.
 
 To start multiline comments:
 ```multilineCommentStart```
@@ -221,9 +219,9 @@ To stop multiline comments:
 
 # Contributing
 
-The repo is not really setup up currently for contributing. 
+The repo is not really set up currently for contributing. 
 
-In order to package the repository run the following scripts. This will generate a zip with the required files for an Anki Add-on
+In order to package the repository, run the following scripts. This will generate a zip with the required files for an Anki Add-on
 
 ```
 ./installOrgToAnki.sh
@@ -232,7 +230,7 @@ In order to package the repository run the following scripts. This will generate
 
 # Issues
 
-If you have an issue please file a github issue! Thanks
+If you have an issue please file a GitHub issue! Thanks
 
 # Future development
 
@@ -243,6 +241,8 @@ Future development will be tracked under issues as feature requests
 Github user fneurohr22
 
 # Change log
+
+2024/05/04 - Released the add-on publicly
 
 2020/04/-7 - Release of Version V1.5.2 => Fix delete issues
 
