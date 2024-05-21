@@ -6,92 +6,11 @@ This anki add-on allows users to create Anki decks in Google Docs that can then 
 
 Official Add-on => [Google Doc Anki Decks](https://ankiweb.net/shared/info/911568091)
 
-# Overview
+# Overview and Instructions
 
-* More features will come in the future
+Use the link below to find instructions and examples
 
-GIF of adding a new deck
-![Basic Example using Google Docs](assets/newDeck.gif)
-
-# Create a new deck
-
-There are two steps:
-* Creating a Google Doc
-* Publishing the Google Doc
-
-## Example remote deck
-
-
-[Example Editable Google docs deck](https://docs.google.com/document/d/1fmGrSfiygvgUj2BXGMPH5PbI_M8ILh6pUfFjAZobOJQ)
-
-[Example Published Google docs deck](https://docs.google.com/document/d/e/2PACX-1vQawILe70vt1oZCLn9SdyF9Wo0i7-gQ2owGeghXHxhjx9e8_WclLotuU8mFLglZ1QQUDnmBnhRTabte/pub)
-
-## Creating Google doc
-
-* Create a new Google Docs page
-* Write your Questions and Answers in the following format using bullet points
-
-```markdown
-# Some comments you don't want included
-* Question 1
-  * Answer 1
-* Question 2
-  * Answer 2
-```
-
-An example is shown below:
-
-![Google Docs image](assets/exampleDoc.png)
-
-This would produce the following:
-
-  * A deck named ```test_deck```
-  * Two basic notes with the associated questions and answers
-
-## Publishing the Google docs
-
-The Google Docs page must be published in order to be publically accessible.
-
-* File > Publish to Web
-* Click on the publish button
-
-
-* The link provided is your key for syncing new decks.
-
-An example published deck [Example Google docs deck](https://docs.google.com/document/d/e/2PACX-1vRXWGu8WvCojrLqMKsf8dTOWstrO1yLy4-8x5nkauRnMyc4iXrwkwY3BThXHc3SlCYqv8ULxup3QiOX/pub)
-
-
-# Adding the deck to Anki
-
-
-To add a new Google Doc deck:
-
-* Click on Tools => Manage Remote Decks => Add new remote deck
-* Add the URL of your remote deck
-* Click OK
-
-The new deck will be added to Anki.
-
-# Adding new content and syncing decks to update with changes
-
-Go to the original Google doc and make the changes you wish to see.
-
-**It can take up to 5 minutes for changes to be published to the public version.**
-
-Keep checking until you see your changes.
-
-To sync all current remote decks:
-
-* Click on Tools => Manage Remote Decks => Sync remote deck
-
-GIF of adding new content and syncing
-![Syncing new content](assets/newQuestion.gif)
-
-# Remove a remote Google Doc deck
-
-Removed decks are only unlinked from the remote doc. The local copy is not deleted.
-
-* Click on Tools => Manage Remote Decks => Remove remote deck
+https://docs.google.com/document/d/17oB8IrIMTSwM99NaOWQG-RDK56kt8Haq2b84smW8h00/edit
 
 # How does the add-on manage changes with note history?
 
@@ -114,108 +33,13 @@ Currently, the following formatting is supported:
 
 Users can now use a table of contents to index large files.
 
-This will allows users to create content at the top of the file and then create headings throughout. These will be ignored when generating questions
+This allows users to create content at the top of the file and then create headings throughout. These will be ignored when generating questions
 
 # Manage image size
 
-Images can be sized by changing their size within the Google doc itself. The height and width in PX of the image is added to the Anki card.
+Images can be sized by changing their size within the Google doc itself. The height and width in PX of the image are added to the Anki card.
 
-# Controlling note type 
 
-The note type can be set as follows:
-
-This would set the note to a basic and reversed type:
-
-```org
-* Question line
-# type = Basic (and reversed card)
-    * Answer line
-```
-
-This would set the note to a Cloze:
-
-```org
-* When was Dublin founded {{c1::1204}}
-* # type=Cloze
-    * Extra Info
-```
-
-Cloze notes are a special case where the comment line can be bullet-pointed. Trying to get the second indentation for the `Extra field` is too difficult in Google Sheets otherwise.
-
-# HTML list types => ```list```
-
-    * Answers on cards are displayed as list
-    * By default this will use an unordered
-
-## Unordered list (Default)
-```org
-# list=ul
-# list=unordered
-```
-
-Produces a card like below
-
-```org
-Question
-_______________________________________________________________________
-* Answer 1
-* Answer 2
-```
-
-## Ordered list 
-```org
-# list=ol
-# list=ordered
-```
-
-Produces a card like below
-
-```org
-Question
-_______________________________________________________________________
-1. Answer 1
-2. Answer 2
-```
-
-## No list 
-```org
-# list=false
-# list=None
-```
-
-Produces a card like below
-
-```org
-Question
-_______________________________________________________________________
-Answer 1
-Answer 2
-```
-
-# Multi-line comments
-
-Multi-line comments are now supported. This allows you to mark an entire section as "ignored" and as add non-Anki-related data.
-
-To start multiline comments:
-```multilineCommentStart```
-
-To stop multiline comments:
-```multilineCommentEnd```
-
-```org
-* Question before multiline comment
-  * Answer before multiline comment
-
-# multilineCommentStart
-
-* Question in multiline comments
-  * Answer in multiline comment
-
-# multilineCommentEnd
-
-* Question after multiline comment
-  * Answer after multiline comment
-```
 
 # Contributing
 
